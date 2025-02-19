@@ -1,14 +1,9 @@
 export interface User {
     firstName: string;
     lastName: string;
-    avatar: string;
+    avatar?: string | null ;
     email: string;
     password: string;
-    role: Role
 }
 
 
-export interface Role {
-    client: string;
-    admin: string
-}
