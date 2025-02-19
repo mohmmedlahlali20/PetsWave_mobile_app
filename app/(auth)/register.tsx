@@ -1,24 +1,37 @@
-import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native"
-import { Stack, useRouter } from "expo-router"
-import { Feather } from "@expo/vector-icons"
-import useImagePicker from "~/hooks/useImagePicker"
-
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { useAppDispatch } from "~/hooks/useAppDispatch";
+import { User } from "~/constant/type";
+import { register } from "../redux/Slice/authSlice";
 
 export default function Register() {
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [passwordConfirmation, setPasswordConfirmation] = useState("")
-  const router = useRouter()
+  const [firstName, setFirstName] = useState("Mohammed");
+  const [lastName, setLastName] = useState("Lahlali");
+  const [email, setEmail] = useState("mohammedlahlali@gmail.com");
+  const [password, setPassword] = useState("mohammedlahlali");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("mohammedlahlali");
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const { image: avatar, pickImage } = useImagePicker() 
+  const handleRegister = async () => {
+    if (password !== passwordConfirmation) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+    const userData: User = {
+      firstName,
+      lastName,
+      email,
+      password,
+      
+    };
 
-  const handleRegister = () => {
-    console.log("Register:", { firstName, lastName, email, password, passwordConfirmation, avatar })
-    router.push("/")
-  }
+    const response = await dispatch(register(userData)).unwrap();
+    console.log("Registration response:", response);
+    Alert.alert("Success", "User registered successfully!");
+    router.push('/(auth)/login');
+  };
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
@@ -31,20 +44,7 @@ export default function Register() {
         }}
       />
       <View className="p-6">
-        <Text className="text-3xl font-bold text-emerald-600 mb-6">Create Account</Text>
-
-        <View className="mb-6 items-center">
-          <TouchableOpacity onPress={pickImage} className="mb-2">
-            {avatar ? (
-              <Image source={{ uri: avatar }} className="w-24 h-24 rounded-full" />
-            ) : (
-              <View className="w-24 h-24 rounded-full bg-gray-200 justify-center items-center">
-                <Feather name="camera" size={32} color="#9CA3AF" />
-              </View>
-            )}
-          </TouchableOpacity>
-          <Text className="text-sm text-gray-600">Tap to select avatar</Text>
-        </View>
+        <Text className="text-3xl font-bold text-emerald-600 mb-6 text-center">Create Account</Text>
 
         <View className="mb-4">
           <Text className="text-sm font-medium text-gray-700 mb-1">First Name</Text>
@@ -109,5 +109,5 @@ export default function Register() {
         </TouchableOpacity>
       </View>
     </ScrollView>
-  )
+  );
 }
