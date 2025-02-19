@@ -1,59 +1,30 @@
-import { useState } from "react"
-import { Alert } from "react-native"
-import * as ImagePicker from "expo-image-picker"
-import { useCameraPermissions } from "expo-camera"
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from 'expo-file-system';
+import { useState } from "react";
 
-export default function useImagePicker() {
-  const [image, setImage] = useState<string | null>(null)
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions()
+const useImagePicker = () => {
+  const [image, setImage] = useState<string | null>(null);
 
   const pickImage = async () => {
-    const { status: imagePickerStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-
-    if (!cameraPermission?.granted) {
-      const { granted } = await requestCameraPermission()
-      if (!granted) {
-        Alert.alert("Permission required", "You need to grant camera access.")
-        return
-      }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    const res = await FileSystem.uploadAsync('http://localhost:4000/upload/avatar',result?.assets?.[0].uri ?? '', {uploadType: FileSystem.FileSystemUploadType.MULTIPART ,fieldName : 'avatar'});
+    console.log(res);
+    console.log("Image Picker Result:", result.assets?.[0].uri ?? '');
+  
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
+    } else {
+      console.warn("Aucune image sélectionnée.");
     }
+  };
+  
 
-    if (imagePickerStatus !== "granted") {
-      Alert.alert("Permission required", "You need to grant gallery access.")
-      return
-    }
+  return { image, pickImage };
+};
 
-    Alert.alert("Select Avatar", "Choose an image from your gallery or take a new photo.", [
-      {
-        text: "Gallery",
-        onPress: async () => {
-          let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: "images",
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-          })
-          if (!result.canceled) {
-            setImage(result.assets[0].uri)
-          }
-        },
-      },
-      {
-        text: "Camera",
-        onPress: async () => {
-          let result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-          })
-          if (!result.canceled) {
-            setImage(result.assets[0].uri)
-          }
-        },
-      },
-      { text: "Cancel", style: "cancel" },
-    ])
-  }
-
-  return { image, pickImage }
-}
+export default useImagePicker;
