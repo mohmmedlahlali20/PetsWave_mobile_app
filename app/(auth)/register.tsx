@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import { useAppDispatch } from "~/hooks/useAppDispatch";
+import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch";
 import { User } from "~/constant/type";
 import { register } from "../redux/Slice/authSlice";
 
@@ -13,6 +13,7 @@ export default function Register() {
   const [passwordConfirmation, setPasswordConfirmation] = useState("mohammedlahlali");
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
 
   const handleRegister = async () => {
     if (password !== passwordConfirmation) {
@@ -24,7 +25,7 @@ export default function Register() {
       lastName,
       email,
       password,
-      
+
     };
 
     const response = await dispatch(register(userData)).unwrap();
@@ -32,6 +33,16 @@ export default function Register() {
     Alert.alert("Success", "User registered successfully!");
     router.push('/(auth)/login');
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      Alert.alert(
+        'Success',
+        'You are already logged in!',
+      );
+      router.push('/');
+    }
+  }, [isAuthenticated]);
 
   return (
     <ScrollView className="flex-1 bg-gray-50">

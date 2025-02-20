@@ -12,17 +12,17 @@ const useImagePicker = () => {
       aspect: [4, 3],
       quality: 1,
     });
-    const res = await FileSystem.uploadAsync('http://localhost:4000/upload/avatar',result?.assets?.[0].uri ?? '', {uploadType: FileSystem.FileSystemUploadType.MULTIPART ,fieldName : 'avatar'});
+    const res = await FileSystem.uploadAsync(`http://${process.env.EXPO_PUBLIC_IP}:${process.env.EXPO_PUBLIC_PORT}/upload/avatar`, result?.assets?.[0].uri ?? '', { uploadType: FileSystem.FileSystemUploadType.MULTIPART, fieldName: 'avatar' });
     console.log(res);
     console.log("Image Picker Result:", result.assets?.[0].uri ?? '');
-  
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImage(result.assets[0].uri);
     } else {
       console.warn("Aucune image sélectionnée.");
     }
   };
-  
+
 
   return { image, pickImage };
 };
