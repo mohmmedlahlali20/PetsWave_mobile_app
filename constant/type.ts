@@ -1,7 +1,7 @@
 export interface User {
     firstName: string;
     lastName: string;
-    avatar?: string | null ;
+    avatar?: string | null;
     email: string;
     password: string;
 }
@@ -23,5 +23,20 @@ export interface InputFieldProps {
     isPassword?: boolean;
     togglePasswordVisibility?: () => void;
     showPasswordState?: boolean;
-    keyboardType?:string
-  }
+    keyboardType?: string
+}
+
+
+
+export interface Pets {
+    name: string,
+    description: string,
+    gender: string,
+    age: number,
+    category: Category,
+    images: string[],
+    Prix: number,
+    isAvailable: boolean
+
+
+}
