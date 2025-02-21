@@ -51,11 +51,11 @@ const authSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(register.pending, (state) => {
+            .addCase(register.pending, (state) => {   
                 state.isLoading = true
                 state.error = null
             })
-            .addCase(register.fulfilled, (state, action) => {
+            .addCase(register.fulfilled, (state, action) => {                
                 state.isLoading = false
                 state.isAuthenticated = true
                 state.user = action.payload
