@@ -51,13 +51,12 @@ export default function Home() {
         }}
       />
 
-      <View className="h-48 bg-purple-600 px-4 justify-center">
+      <View className="h-48 bg-[#491975] px-4 justify-center">
         <View className="bg-white/10 p-6 rounded-2xl">
           <Text className="text-white text-3xl font-bold mb-2">Bienvenue chez PetsWave</Text>
           <Text className="text-purple-100">Découvrez notre sélection premium pour vos compagnons</Text>
         </View>
       </View>
-
       <View className="px-4 -mt-6">
         <View className="bg-white rounded-xl p-4 shadow-lg mb-6">
           <View className="flex-row justify-around items-center">
@@ -68,7 +67,7 @@ export default function Home() {
               <Text className="text-sm font-medium text-gray-700">Profil</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="items-center" onPress={() => router.push('/petsDetails')}>
+            <TouchableOpacity className="items-center" onPress={() => router.push('/cart/cart')}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="shopping-cart" size={20} color="#fff" />
               </View>
@@ -110,7 +109,7 @@ export default function Home() {
                 }}
               >
                 <View className="bg-white rounded-2xl p-4 mb-2 shadow-lg border border-purple-100">
-                  <Ionicons name="paw" size={32} color="#7C3AED" />
+                  <Ionicons name="paw" size={32} color="#491975" />
                 </View>
                 <Text className="text-sm font-medium text-gray-700">{category.name}</Text>
               </TouchableOpacity>
@@ -143,7 +142,7 @@ export default function Home() {
               >
                 {pet.images && pet.images.length > 0 ? (
                   <Image
-                    source={{ uri: replaceIp(pet.images[0], '192.168.8.134') }}
+                    source={{ uri: replaceIp(pet.images[0], '192.168.1.11') }}
                     className="w-full h-56"
                     resizeMode="cover"
                   />
