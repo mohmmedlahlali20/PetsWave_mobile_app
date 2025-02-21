@@ -6,52 +6,30 @@ import { useEffect, useRef } from "react"
 import React from "react"
 import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
 import { getCategory } from "./redux/Slice/categorySlice"
+import { getPets } from "./redux/Slice/petSlice"
+import { replaceIp } from "~/hooks/helpers"
 
-
-
-type Product = {
-  name: string
-  price: string
-  image: string
-  description: string
-}
-
-
-const featuredProducts: Product[] = [
-  {
-    name: "Croquettes Premium Bio",
-    price: "29,99 €",
-    image: "/placeholder.svg?height=300&width=400",
-    description: "Nourriture naturelle et équilibrée",
-  },
-  {
-    name: "Jouet Interactif Smart",
-    price: "14,99 €",
-    image: "/placeholder.svg?height=300&width=400",
-    description: "Stimulation mentale garantie",
-  },
-  {
-    name: "Collier GPS Premium",
-    price: "49,99 €",
-    image: "/placeholder.svg?height=300&width=400",
-    description: "Suivi en temps réel",
-  },
-]
 
 export default function Home() {
   const dispatch = useAppDispatch()
-  const { categories, isLoading, error } = useAppSelector((state) => state.category)
+  const { categories } = useAppSelector((state) => state.category)
+  const { pets = [], isLoading, error } = useAppSelector((state) => state.pets)
 
 
-  useEffect(()=>{
-    const getAll = async () =>{
-      await dispatch(getCategory()).unwrap()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await dispatch(getCategory()).unwrap()
+        await dispatch(getPets()).unwrap()
+      } catch (err) {
+        console.error("Erreur lors du chargement des données :", err)
+      }
     }
 
-    getAll()
+    fetchData()
+  }, [dispatch])
 
-  },[dispatch])
-  
   const router = useRouter()
   const scrollY = useRef(new Animated.Value(0)).current
 
@@ -62,7 +40,6 @@ export default function Home() {
   return (
     <ScrollView
       className="flex-1 bg-purple-50"
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
       scrollEventThrottle={16}
     >
       <Stack.Screen
@@ -118,7 +95,7 @@ export default function Home() {
           {categories?.length > 0 ? (
             categories.map((category, index) => (
               <TouchableOpacity
-                key={category.name}
+                key={Math.random()}
                 className="items-center mr-6"
                 style={{
                   transform: [
@@ -151,29 +128,57 @@ export default function Home() {
           </TouchableOpacity>
         </View>
 
-        {featuredProducts.map((product, index) => (
-          <TouchableOpacity
-            key={product.name}
-            className="bg-white rounded-2xl mb-6 overflow-hidden border border-purple-100 shadow-lg"
+        {pets.length > 0 ? (
+          <ScrollView
+            horizontal={false}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ gap: 16, padding: 16 }}
           >
-            <Image source={{ uri: product.image }} className="w-full h-48" resizeMode="cover" />
-            <View className="p-4">
-              <View className="flex-row justify-between items-start mb-2">
-                <View className="flex-1">
-                  <Text className="text-lg font-semibold text-gray-800 mb-1">{product.name}</Text>
-                  <Text className="text-sm text-gray-500">{product.description}</Text>
+            {pets.map((pet, index) => (
+              <TouchableOpacity
+                key={index}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg"
+                activeOpacity={0.8}
+              >
+                {pet.images && pet.images.length > 0 ? (
+                  <Image
+                    source={{ uri: replaceIp(pet.images[0], '192.168.8.134') }}
+                    className="w-full h-56"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="w-full h-56 bg-gray-200 flex justify-center items-center">
+                    <Text className="text-gray-500">Image non disponible</Text>
+                  </View>
+                )}
+
+                <View className="p-4 space-y-2">
+                  <View className="flex-row justify-between items-start">
+                    <View>
+                      <Text className="text-lg font-semibold text-gray-800">{pet.name}</Text>
+                      <Text className="text-sm text-gray-500">{pet.description}</Text>
+                    </View>
+                    <View className="bg-purple-100 px-3 py-1 rounded-full">
+                      <Text className="text-purple-600 font-bold">{pet.Prix} MAD</Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    className="bg-gradient-to-r from-purple-600 to-purple-400 py-2 rounded-xl flex-row justify-center items-center"
+                  >
+                    <Feather name="shopping-cart" size={18} color="#fff" className="mr-2" />
+                    <Text className="text-white font-semibold">Ajouter au panier</Text>
+                  </TouchableOpacity>
                 </View>
-                <View className="bg-purple-100 px-3 py-1 rounded-full">
-                  <Text className="text-purple-600 font-bold">{product.price}</Text>
-                </View>
-              </View>
-              <TouchableOpacity className="bg-purple-600 py-3 rounded-xl flex-row justify-center items-center mt-2">
-                <Feather name="shopping-cart" size={18} color="#fff" className="mr-2" />
-                <Text className="text-white font-semibold ml-2">Ajouter au panier</Text>
               </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        ))}
+            ))}
+          </ScrollView>
+        ) : (
+          <View className="flex-1 items-center justify-center">
+            <Text className="text-gray-500 text-lg">Aucun animal disponible</Text>
+          </View>
+        )}
+
       </View>
     </ScrollView>
   )

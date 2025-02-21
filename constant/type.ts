@@ -8,6 +8,7 @@ export interface User {
 
 
 export interface Category {
+    id: string
     name: string
 }
 
@@ -29,6 +30,7 @@ export interface InputFieldProps {
 
 
 export interface Pets {
+    id: string
     name: string,
     description: string,
     gender: string,
