@@ -30,7 +30,7 @@ export interface InputFieldProps {
 
 
 export interface Pets {
-    id: string
+    _id: string
     name: string,
     description: string,
     gender: string,
