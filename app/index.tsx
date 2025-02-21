@@ -68,7 +68,7 @@ export default function Home() {
               <Text className="text-sm font-medium text-gray-700">Profil</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="items-center">
+            <TouchableOpacity className="items-center" onPress={() => router.push('/petsDetails')}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="shopping-cart" size={20} color="#fff" />
               </View>
@@ -139,6 +139,7 @@ export default function Home() {
                 key={index}
                 className="bg-white rounded-2xl overflow-hidden shadow-lg"
                 activeOpacity={0.8}
+                onPress={() => router.push(`/petsDetails?petId=${pet._id}`)}
               >
                 {pet.images && pet.images.length > 0 ? (
                   <Image
@@ -156,7 +157,10 @@ export default function Home() {
                   <View className="flex-row justify-between items-start">
                     <View>
                       <Text className="text-lg font-semibold text-gray-800">{pet.name}</Text>
-                      <Text className="text-sm text-gray-500">{pet.description}</Text>
+                      <Text className="text-sm text-gray-500">
+                        {pet.description.split(" ").slice(0, 4).join(" ")}...
+                      </Text>
+
                     </View>
                     <View className="bg-purple-100 px-3 py-1 rounded-full">
                       <Text className="text-purple-600 font-bold">{pet.Prix} MAD</Text>
