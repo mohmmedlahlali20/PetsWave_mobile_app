@@ -23,13 +23,12 @@ export default function Register() {
   const [email, setEmail] = useState("mohammedlahlali@gmail.com")
   const [password, setPassword] = useState("mohammedlahlali")
   const [passwordConfirmation, setPasswordConfirmation] = useState("mohammedlahlali")
-  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { isAuthenticated } = useAppSelector((state) => state.auth)
+  const { isAuthenticated, isLoading, error } = useAppSelector((state) => state.auth)
 
   const handleRegister = async () => {
     if (password !== passwordConfirmation) {
@@ -37,7 +36,6 @@ export default function Register() {
       return
     }
 
-    setIsLoading(true)
     try {
       const userData: User = { firstName, lastName, email, password }
 
@@ -47,8 +45,6 @@ export default function Register() {
       ])
     } catch (error) {
       Alert.alert("Registration Failed", "Please try again later.")
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -79,7 +75,11 @@ export default function Register() {
             <Text className="text-3xl font-bold text-purple-700">Join PetWave</Text>
             <Text className="text-gray-500 mt-2">Create your account to get started</Text>
           </View>
-
+          {error && (
+            <View className="mb-4 bg-red-100 p-3 rounded-lg">
+              <Text className="text-red-600 text-center">{error}</Text>
+            </View>
+          )}
           <InputField
             icon={<Ionicons name="person-outline" size={20} color="#9333EA" />}
             placeholder="First Name"

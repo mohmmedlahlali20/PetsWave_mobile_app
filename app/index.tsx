@@ -2,13 +2,12 @@
 import { Stack, useRouter } from "expo-router"
 import { Text, View, Image, ScrollView, TouchableOpacity, Animated } from "react-native"
 import { Feather, Ionicons } from "@expo/vector-icons"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import React from "react"
+import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
+import { getCategory } from "./redux/Slice/categorySlice"
 
-type Category = {
-  name: string
-  icon: keyof typeof Ionicons.glyphMap
-}
+
 
 type Product = {
   name: string
@@ -17,14 +16,6 @@ type Product = {
   description: string
 }
 
-const categories: Category[] = [
-  { name: "Nourriture", icon: "fast-food-sharp" },
-  { name: "Jouets", icon: "balloon" },
-  { name: "Accessoires", icon: "accessibility" },
-  { name: "Soins", icon: "paw" },
-  { name: "Vêtements", icon: "shirt" },
-  { name: "Litière", icon: "home" },
-]
 
 const featuredProducts: Product[] = [
   {
@@ -48,6 +39,19 @@ const featuredProducts: Product[] = [
 ]
 
 export default function Home() {
+  const dispatch = useAppDispatch()
+  const { categories, isLoading, error } = useAppSelector((state) => state.category)
+
+
+  useEffect(()=>{
+    const getAll = async () =>{
+      await dispatch(getCategory()).unwrap()
+    }
+
+    getAll()
+
+  },[dispatch])
+  
   const router = useRouter()
   const scrollY = useRef(new Animated.Value(0)).current
 
@@ -111,31 +115,35 @@ export default function Home() {
 
         <Text className="text-xl font-semibold text-gray-800 mb-4">Catégories</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-8">
-          {categories.map((category, index) => (
-            <TouchableOpacity
-              key={category.name}
-              className="items-center mr-6"
-              style={{
-                transform: [
-                  {
-                    scale: scrollY.interpolate({
-                      inputRange: [0, 100],
-                      outputRange: [1, 0.95],
-                      extrapolate: "clamp",
-                    }),
-                  },
-                ],
-              }}
-            >
-              <View className="bg-white rounded-2xl p-4 mb-2 shadow-lg border border-purple-100">
-                <Ionicons name={category.icon} size={32} color="#7C3AED" />
-              </View>
-              <Text className="text-sm font-medium text-gray-700">{category.name}</Text>
-            </TouchableOpacity>
-          ))}
+          {categories?.length > 0 ? (
+            categories.map((category, index) => (
+              <TouchableOpacity
+                key={category.name}
+                className="items-center mr-6"
+                style={{
+                  transform: [
+                    {
+                      scale: scrollY.interpolate({
+                        inputRange: [0, 100],
+                        outputRange: [1, 0.95],
+                        extrapolate: "clamp",
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <View className="bg-white rounded-2xl p-4 mb-2 shadow-lg border border-purple-100">
+                  <Ionicons name="paw" size={32} color="#7C3AED" />
+                </View>
+                <Text className="text-sm font-medium text-gray-700">{category.name}</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text className="text-gray-500">Aucune catégorie disponible</Text>
+          )}
+
         </ScrollView>
 
-        {/* Featured Products */}
         <View className="flex-row justify-between items-center mb-6">
           <Text className="text-xl font-semibold text-gray-800">Produits en vedette</Text>
           <TouchableOpacity className="bg-purple-100 px-4 py-2 rounded-full">
