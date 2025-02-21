@@ -67,7 +67,7 @@ export default function ProductDetail() {
             <Stack.Screen
                 options={{
                     title: "Détails du produit",
-                    headerStyle: { backgroundColor: "#7C3AED" },
+                    headerStyle: { backgroundColor: "#491975" },
                     headerTintColor: "#fff",
                     headerTitleStyle: { fontWeight: "bold" },
                 }}
@@ -79,7 +79,7 @@ export default function ProductDetail() {
                         {petSelected?.images?.length > 0 && (
                             <Image
 
-                                source={{ uri: replaceIp(petSelected.images[selectedImage], "192.168.8.134") }}
+                                source={{ uri: replaceIp(petSelected.images[selectedImage], "192.168.1.11") }}
                                 className="w-screen h-96"
                                 resizeMode="cover"
                             />
@@ -98,7 +98,7 @@ export default function ProductDetail() {
                         className={`mr-2 border-2 rounded-lg overflow-hidden ${selectedImage === index ? "border-purple-600" : "border-transparent"
                             }`}
                     >
-                        <Image source={{ uri: replaceIp(image, '192.168.8.134') }} className="w-16 h-16" resizeMode="cover" />
+                        <Image source={{ uri: replaceIp(image, '192.168.1.11') }} className="w-16 h-16" resizeMode="cover" />
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -129,7 +129,7 @@ export default function ProductDetail() {
                     <View className="space-y-2">
 
                         <View className="flex-row items-center">
-                            <Feather name="check" size={18} color="#7C3AED" />
+                            <Feather name="check" size={18} color="#491975" />
                             <Text className="ml-2 text-gray-600">{petSelected?.category.name}</Text>
                         </View>
 
