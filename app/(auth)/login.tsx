@@ -19,8 +19,8 @@ import InputField from "~/components/InputField"
 
 
 export default function LoginComponent() {
-    const [email, setEmail] = useState<string>("mohammedlahlali@gmail.com")
-    const [password, setPassword] = useState<string>("mohammedlahlali")
+    const [email, setEmail] = useState<string>("mohmmed2010@gmail.com")
+    const [password, setPassword] = useState<string>("20018555passsword")
     const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
     const dispatch = useAppDispatch()
@@ -81,11 +81,14 @@ export default function LoginComponent() {
 
                     <InputField
                         icon={<Ionicons name="lock-closed-outline" size={20} color="#9333EA" />}
-                        placeholder="Enter your password"
+                        placeholder="Password"
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry={true}
                         showPasswordToggle={true}
+                        isPassword={true}
+                        togglePasswordVisibility={() => setShowPassword(!showPassword)}
+                        showPasswordState={showPassword}
                     />
 
                     <TouchableOpacity className="mb-6">

@@ -15,7 +15,7 @@ const InputField: React.FC<InputFieldProps> = ({
   showPasswordState = false,
 }) => {
   return (
-    <View className="flex-row items-center border border-gray-300 rounded-lg px-3 py-2 bg-white">
+    <View className="flex-row items-center border border-gray-300 rounded-lg px-3 py-2 bg-white m-2">
       {icon && <View className="mr-2">{icon}</View>}
       <TextInput
         placeholder={placeholder} 
