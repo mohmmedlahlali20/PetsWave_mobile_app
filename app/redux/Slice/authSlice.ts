@@ -2,19 +2,24 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { User } from "~/constant/type"
 import { loginApi, registerApi } from "../service/api/user"
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jwtDecode } from "jwt-decode";
+
+
 
 const initialState: {
     user: User | null,
     isLoading: boolean,
     isAuthenticated: boolean,
     error: string | null,
-    token: string | null
+    token: string | null,
+    userId: string | null
 } = {
     user: null,
     isAuthenticated: false,
     isLoading: false,
     error: null,
-    token: null
+    token: null,
+    userId: null
 }
 
 
@@ -30,19 +35,40 @@ export const register = createAsyncThunk('user/register',
         }
     });
 
-    export const Login = createAsyncThunk('user/login', 
-        async({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
-            try {
-                const user = await loginApi({ email, password });
-                const token = user.token;
-                await AsyncStorage.setItem('token', token);
-                return user;
-            } catch (error: any) {
-                return rejectWithValue(error.response?.data?.message || "Login failed");
-            }
+
+
+export const Login = createAsyncThunk(
+    "user/login",
+    async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+        try {
+            const user = await loginApi({ email, password });
+            const token = user.token;
+
+            await AsyncStorage.setItem("token", token);
+
+            const decodedToken: any = jwtDecode(token);
+            console.log(decodedToken);
+
+            const userId = decodedToken.id;
+
+            return { ...user, userId };
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "Login failed");
         }
-    );
-    
+    }
+);
+
+
+export const logout = createAsyncThunk("user/logout", async (_, { rejectWithValue }) => {
+    try {
+        await AsyncStorage.removeItem("token");
+        return null;
+    } catch (error: any) {
+        return rejectWithValue("Logout failed");
+    }
+});
+
+
 
 
 const authSlice = createSlice({
@@ -51,11 +77,11 @@ const authSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(register.pending, (state) => {   
+            .addCase(register.pending, (state) => {
                 state.isLoading = true
                 state.error = null
             })
-            .addCase(register.fulfilled, (state, action) => {                
+            .addCase(register.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.isAuthenticated = true
                 state.user = action.payload
@@ -69,15 +95,22 @@ const authSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(Login.fulfilled,  (state, action) => {
+            .addCase(Login.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
                 state.user = action.payload;
                 state.token = action.payload.token;
+                state.userId = action.payload.userId
             })
             .addCase(Login.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
+            })
+            .addCase(logout.fulfilled, (state) => {
+                state.user = null;
+                state.token = null;
+                state.userId = null;
+                state.isAuthenticated = false;
             });
     }
 });
