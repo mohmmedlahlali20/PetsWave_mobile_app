@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 
-import { loginApi, registerApi } from '../service/api/user';
+import { forgetPasswordApi, loginApi, registerApi } from '../service/api/user';
 
 import { User } from '~/constant/type';
 
@@ -22,13 +22,12 @@ const initialState: {
   userId: null,
 };
 
+// Register
 export const register = createAsyncThunk(
   'user/register',
   async (registerData: User, { rejectWithValue }) => {
     try {
       const newUser = await registerApi(registerData);
-      console.log(newUser);
-
       return newUser;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
@@ -36,6 +35,7 @@ export const register = createAsyncThunk(
   }
 );
 
+// Login
 export const Login = createAsyncThunk(
   'user/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
@@ -46,8 +46,6 @@ export const Login = createAsyncThunk(
       await AsyncStorage.setItem('token', token);
 
       const decodedToken: any = jwtDecode(token);
-      console.log(decodedToken);
-
       const userId = decodedToken.id;
 
       return { ...user, userId };
@@ -57,6 +55,7 @@ export const Login = createAsyncThunk(
   }
 );
 
+// Logout
 export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValue }) => {
   try {
     await AsyncStorage.removeItem('token');
@@ -66,12 +65,25 @@ export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValu
   }
 });
 
+// Forget Password
+export const forgetPassword = createAsyncThunk(
+  'user/forgetPassword',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      return await forgetPasswordApi(email);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Forget password failed');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Register
       .addCase(register.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -86,6 +98,8 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+
+      // Login
       .addCase(Login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -101,11 +115,29 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+
+      // Logout
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.userId = null;
         state.isAuthenticated = false;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+
+      // Forget Password
+      .addCase(forgetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(forgetPassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(forgetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });
