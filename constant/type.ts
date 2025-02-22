@@ -39,6 +39,22 @@ export interface Pets {
     images: string[],
     Prix: number,
     isAvailable: boolean
-
-
 }
+
+
+export interface Commands {
+    petsId: string,
+    userId: string,
+    status: Status,
+    orderDate: Date,
+    totalAmount: number
+}
+
+
+export enum Status {
+    Pending = "pending",
+    InProgress = "inProgress",
+    Completed = "completed",
+    Cancelled = "cancelled"
+}
+
