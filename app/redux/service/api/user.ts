@@ -11,7 +11,13 @@ const loginApi = async ({email, password}:{email:string, password: string}) => {
     return login.data
 }
 
+const forgetPasswordApi = async (email: string) => {
+    const res = await path.post('auth/forget-password', {email});
+    return res.data
+}
+
 export {
      registerApi, 
-     loginApi 
+     loginApi,
+     forgetPasswordApi
     }
