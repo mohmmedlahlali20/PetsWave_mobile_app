@@ -60,10 +60,10 @@ export default function Home() {
       <View className="px-4 -mt-6">
         <View className="bg-white rounded-xl p-4 shadow-lg mb-6">
           <View className="flex-row justify-around items-center">
-            <TouchableOpacity className="items-center">
+            <TouchableOpacity className="items-center" onPress={() => router.push('/(auth)/profile')}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="user" size={20} color="#fff" />
-              </View>
+              </View> 
               <Text className="text-sm font-medium text-gray-700">Profil</Text>
             </TouchableOpacity>
 
@@ -80,7 +80,7 @@ export default function Home() {
               </View>
               <Text className="text-sm font-medium text-gray-700">Déconnexion</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="items-center" onPress={registerRedirect}>
+            <TouchableOpacity className="items-center" onPress={()=>router.push('/(pets)/serarch')}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="search" size={20} color="#fff" />
               </View>
