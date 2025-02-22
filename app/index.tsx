@@ -8,15 +8,31 @@ import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
 import { getCategory } from "./redux/Slice/categorySlice"
 import { getPets } from "./redux/Slice/petSlice"
 import { replaceIp } from "~/hooks/helpers"
+import { logout } from "./redux/Slice/authSlice"
 
 
 export default function Home() {
   const dispatch = useAppDispatch()
   const { categories } = useAppSelector((state) => state.category)
   const { pets = [], isLoading, error } = useAppSelector((state) => state.pets)
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
+  const router = useRouter()
+  const scrollY = useRef(new Animated.Value(0)).current
 
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setTimeout(() => {
+        router.push('/(auth)/login');
+      }, 100); 
+    }
+  }, [isAuthenticated, router]);
+  
 
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,12 +46,6 @@ export default function Home() {
     fetchData()
   }, [dispatch])
 
-  const router = useRouter()
-  const scrollY = useRef(new Animated.Value(0)).current
-
-  const registerRedirect = () => {
-    router.push("/(auth)/register")
-  }
 
   return (
     <ScrollView
@@ -63,7 +73,7 @@ export default function Home() {
             <TouchableOpacity className="items-center" onPress={() => router.push('/(auth)/profile')}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="user" size={20} color="#fff" />
-              </View> 
+              </View>
               <Text className="text-sm font-medium text-gray-700">Profil</Text>
             </TouchableOpacity>
 
@@ -74,13 +84,13 @@ export default function Home() {
               <Text className="text-sm font-medium text-gray-700">Panier</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="items-center" onPress={registerRedirect}>
+            <TouchableOpacity className="items-center" onPress={handleLogout}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="log-out" size={20} color="#fff" />
               </View>
               <Text className="text-sm font-medium text-gray-700">Déconnexion</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="items-center" onPress={()=>router.push('/(pets)/serarch')}>
+            <TouchableOpacity className="items-center" onPress={() => router.push('/(pets)/serarch')}>
               <View className="bg-purple-600 p-3 rounded-full mb-1 shadow-sm">
                 <Feather name="search" size={20} color="#fff" />
               </View>
