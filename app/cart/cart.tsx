@@ -63,7 +63,7 @@ export default function Cart() {
             <Text className="text-center text-gray-500">Le panier est vide.</Text>
           ) : (
             cartItems.map((item) => (
-              <View key={item._id} className="flex-row items-center py-4 border-b border-gray-100 last:border-0">
+              <View key={Math.random()} className="flex-row items-center py-4 border-b border-gray-100 last:border-0">
                 <Image
                   source={{ uri: item.images?.[0] ? replaceIp(item.images[0], '192.168.1.11') : undefined }}
                   className="w-20 h-20 rounded-lg"
