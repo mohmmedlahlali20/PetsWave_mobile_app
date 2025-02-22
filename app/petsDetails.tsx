@@ -1,14 +1,14 @@
 
 
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
-import { Text, View, Image, ScrollView, TouchableOpacity, Dimensions } from "react-native"
+import { Text, View, Image, ScrollView, TouchableOpacity, Dimensions, Alert, ToastAndroid } from "react-native"
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useEffect, useState } from "react"
 import React from "react"
 import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
 import { getOnePet } from "./redux/Slice/petSlice"
 import { replaceIp } from "~/hooks/helpers"
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Review = {
     id: number
@@ -36,7 +36,7 @@ const reviews: Review[] = [
     },
 ]
 
-const sizes = ["XS", "S", "M", "L", "XL"]
+
 
 export default function ProductDetail() {
     const router = useRouter()
@@ -44,12 +44,7 @@ export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(0)
     const dispatch = useAppDispatch()
     const { petSelected, isLoading, error } = useAppSelector((state) => state.pets)
-
-    console.log(petSelected);
-
     useEffect(() => {
-        console.log(petId);
-
         const fetchPet = async () => {
             await dispatch(getOnePet(petId as string)).unwrap()
         }
@@ -61,6 +56,44 @@ export default function ProductDetail() {
             <Ionicons key={index} name={index < rating ? "star" : "star-outline"} size={16} color="#F59E0B" />
         ))
     }
+
+
+
+    const addToCart = async () => {
+        try {
+
+
+            const pet = {
+                id: petSelected?._id,
+                name: petSelected?.name,
+                price: petSelected?.Prix,
+                image: petSelected?.images,
+            };
+
+            const existingCart = await AsyncStorage.getItem("cart");
+            const cart = existingCart ? JSON.parse(existingCart) : [];
+
+            if (!cart.some((item: { id: string | undefined }) => item.id === pet.id)) {
+                cart.push(pet);
+                await AsyncStorage.setItem("cart", JSON.stringify(cart));
+                ToastAndroid.show("Animal ajouté au panier !", ToastAndroid.SHORT);
+            } else {
+                Alert.alert(
+                    "Animal déjà dans le panier",
+                    "Cet animal est déjà présent dans votre panier.",
+                    [{ text: "OK" }]
+                );
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'ajout au panier :", error);
+            Alert.alert(
+                "Erreur",
+                "Une erreur s'est produite lors de l'ajout de l'animal au panier. Veuillez réessayer.",
+                [{ text: "OK" }]
+            );
+        }
+    };
+
 
     return (
         <ScrollView className="flex-1 bg-purple-100">
@@ -150,10 +183,13 @@ export default function ProductDetail() {
                     ))}
                 </View>
 
-                <TouchableOpacity className="bg-purple-600 py-4 px-6 rounded-xl flex-row justify-center items-center mt-4">
+                <TouchableOpacity
+                    className="bg-purple-600 py-4 px-6 rounded-xl flex-row justify-center items-center mt-4"
+                    onPress={addToCart}
+                >
                     <Feather name="shopping-cart" size={20} color="#fff" />
                     <Text className="ml-2 text-white font-bold text-lg">
-                        Ajouter au panier • {petSelected?.Prix} €
+                        Ajouter au panier • {petSelected?.Prix} MAD
                     </Text>
                 </TouchableOpacity>
             </View>
