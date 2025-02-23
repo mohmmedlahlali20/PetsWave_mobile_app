@@ -16,6 +16,9 @@ export default function Home() {
   const { categories } = useAppSelector((state) => state.category)
   const { pets = [], isLoading, error } = useAppSelector((state) => state.pets)
   const { isAuthenticated } = useAppSelector((state) => state.auth)
+  console.log('====================================');
+  console.log(isAuthenticated);
+  console.log('====================================');
   const router = useRouter()
   const scrollY = useRef(new Animated.Value(0)).current
 
@@ -152,7 +155,7 @@ export default function Home() {
               >
                 {pet.images && pet.images.length > 0 ? (
                   <Image
-                    source={{ uri: replaceIp(pet.images[0], '192.168.1.11') }}
+                    source={{ uri: replaceIp(pet.images[0], '192.168.8.134') }}
                     className="w-full h-56"
                     resizeMode="cover"
                   />
