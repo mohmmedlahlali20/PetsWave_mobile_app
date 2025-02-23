@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 
-import { forgetPasswordApi, loginApi, registerApi } from '../service/api/user';
+import { forgetPasswordApi, loginApi, registerApi, resetPasswordApi, verificationOTPApi } from '../service/api/user';
 
 import { User } from '~/constant/type';
 
@@ -13,6 +13,8 @@ const initialState: {
   error: string | null;
   token: string | null;
   userId: string | null;
+  isOTPSent: boolean;
+  isOTPVerified: boolean
 } = {
   user: null,
   isAuthenticated: false,
@@ -20,9 +22,10 @@ const initialState: {
   error: null,
   token: null,
   userId: null,
+  isOTPSent: false,
+  isOTPVerified: false,
 };
 
-// Register
 export const register = createAsyncThunk(
   'user/register',
   async (registerData: User, { rejectWithValue }) => {
@@ -35,7 +38,6 @@ export const register = createAsyncThunk(
   }
 );
 
-// Login
 export const Login = createAsyncThunk(
   'user/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
@@ -55,7 +57,6 @@ export const Login = createAsyncThunk(
   }
 );
 
-// Logout
 export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValue }) => {
   try {
     await AsyncStorage.removeItem('token');
@@ -65,7 +66,6 @@ export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValu
   }
 });
 
-// Forget Password
 export const forgetPassword = createAsyncThunk(
   'user/forgetPassword',
   async (email: string, { rejectWithValue }) => {
@@ -77,13 +77,41 @@ export const forgetPassword = createAsyncThunk(
   }
 );
 
+
+
+export const verifyOTP = createAsyncThunk(
+  "auth/verifyOTP",
+  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
+    try {
+      const response = await verificationOTPApi({ email, otp });
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Échec de la vérification OTP");
+    }
+  }
+);
+
+
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ email, newPassword }: { email: string; newPassword: string }, { rejectWithValue }) => {
+    try {
+      const response = await resetPasswordApi({ email, newPassword });
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Échec de la réinitialisation du mot de passe");
+    }
+  }
+);
+
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Register
       .addCase(register.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -99,7 +127,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Login
       .addCase(Login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -116,7 +143,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Logout
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;
@@ -127,7 +153,6 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Forget Password
       .addCase(forgetPassword.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -138,7 +163,38 @@ const authSlice = createSlice({
       .addCase(forgetPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+
+
+      .addCase(verifyOTP.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyOTP.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isOTPVerified = true;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+      })
+      .addCase(verifyOTP.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isOTPVerified = false;
+        state.error = action.payload as string;
+      })
+
+
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
+
   },
 });
 
