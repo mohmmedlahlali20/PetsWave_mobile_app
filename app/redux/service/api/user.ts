@@ -16,8 +16,21 @@ const forgetPasswordApi = async (email: string) => {
     return res.data
 }
 
+
+const verificationOTPApi = async ({ email, otp }: { email: string; otp: string }) => {
+    const res = await path.post("auth/verify-otp", { email, otp });
+    return res.data;
+};
+
+const resetPasswordApi = async ({ email, newPassword }: { email: string; newPassword: string }) => {
+    const res = await path.post("auth/reset-password", { email, newPassword });
+    return res.data;
+};
+
 export {
-     registerApi, 
-     loginApi,
-     forgetPasswordApi
-    }
+    registerApi, 
+    loginApi,
+    forgetPasswordApi,
+    verificationOTPApi,
+    resetPasswordApi
+};
