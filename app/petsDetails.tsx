@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
 import { getOnePet } from "./redux/Slice/petSlice"
 import { replaceIp } from "~/hooks/helpers"
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Pets } from "~/constant/type"
 
 type Review = {
     id: number
@@ -61,19 +62,17 @@ export default function ProductDetail() {
 
     const addToCart = async () => {
         try {
-
-
             const pet = {
-                id: petSelected?._id,
+                _id: petSelected?._id,
                 name: petSelected?.name,
-                price: petSelected?.Prix,
-                image: petSelected?.images,
+                Prix: petSelected?.Prix,
+                images: petSelected?.images,
             };
-
+    
             const existingCart = await AsyncStorage.getItem("cart");
             const cart = existingCart ? JSON.parse(existingCart) : [];
-
-            if (!cart.some((item: { id: string | undefined }) => item.id === pet.id)) {
+    
+            if (!cart.some((item: Pets) => item._id === pet._id)) { 
                 cart.push(pet);
                 await AsyncStorage.setItem("cart", JSON.stringify(cart));
                 ToastAndroid.show("Animal ajouté au panier !", ToastAndroid.SHORT);
@@ -93,6 +92,7 @@ export default function ProductDetail() {
             );
         }
     };
+    
 
 
     return (
@@ -112,7 +112,7 @@ export default function ProductDetail() {
                         {petSelected?.images?.length > 0 && (
                             <Image
 
-                                source={{ uri: replaceIp(petSelected.images[selectedImage], "192.168.1.11") }}
+                                source={{ uri: replaceIp(petSelected.images[selectedImage], "192.168.8.134") }}
                                 className="w-screen h-96"
                                 resizeMode="cover"
                             />
@@ -131,7 +131,7 @@ export default function ProductDetail() {
                         className={`mr-2 border-2 rounded-lg overflow-hidden ${selectedImage === index ? "border-purple-600" : "border-transparent"
                             }`}
                     >
-                        <Image source={{ uri: replaceIp(image, '192.168.1.11') }} className="w-16 h-16" resizeMode="cover" />
+                        <Image source={{ uri: replaceIp(image, '192.168.8.134') }} className="w-16 h-16" resizeMode="cover" />
                     </TouchableOpacity>
                 ))}
             </ScrollView>
