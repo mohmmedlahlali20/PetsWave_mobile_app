@@ -3,7 +3,9 @@
 import { Stack, useRouter } from "expo-router"
 import { Text, View, ScrollView, TouchableOpacity, TextInput } from "react-native"
 import { Feather, FontAwesome } from "@expo/vector-icons"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { Pets } from "~/constant/type"
 
 type PaymentMethod = "card" | "paypal" | "apple"
 type CardType = "visa" | "mastercard" | "amex" | "unknown"
@@ -12,11 +14,21 @@ type CheckoutStep = "shipping" | "payment" | "confirmation"
 
 export default function Checkout() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>("payment")
+
+  const [cartItems, setCartItems] = useState<Pets[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card")
   const [cardNumber, setCardNumber] = useState("")
   const [cardType, setCardType] = useState<CardType>("unknown")
   const [isLoading, setIsLoading] = useState(false)
+console.log(cartItems);
+
+
+const loadCart = async () => {
+  const storedCart = await AsyncStorage.getItem("cart");
+  setCartItems(storedCart ? JSON.parse(storedCart) : []);
+};
+
+
 
   const detectCardType = (number: string): CardType => {
     if (number.startsWith("4")) return "visa"
@@ -81,11 +93,10 @@ export default function Checkout() {
           <View className="space-y-3">
             <TouchableOpacity
               onPress={() => setPaymentMethod("card")}
-              className={`flex-row items-center p-4 rounded-xl border ${
-                paymentMethod === "card"
-                  ? "border-purple-600 bg-purple-50"
-                  : "border-gray-200"
-              }`}
+              className={`flex-row items-center p-4 rounded-xl border ${paymentMethod === "card"
+                ? "border-purple-600 bg-purple-50"
+                : "border-gray-200"
+                }`}
             >
               <FontAwesome name="credit-card" size={24} color="#491975" />
               <Text className="ml-3 font-medium text-gray-800">
@@ -100,11 +111,10 @@ export default function Checkout() {
 
             <TouchableOpacity
               onPress={() => setPaymentMethod("paypal")}
-              className={`flex-row items-center p-4 rounded-xl border ${
-                paymentMethod === "paypal"
-                  ? "border-purple-600 bg-purple-50"
-                  : "border-gray-200"
-              }`}
+              className={`flex-row items-center p-4 rounded-xl border ${paymentMethod === "paypal"
+                ? "border-purple-600 bg-purple-50"
+                : "border-gray-200"
+                }`}
             >
               <FontAwesome name="paypal" size={24} color="#009cde" />
               <Text className="ml-3 font-medium text-gray-800">PayPal</Text>
@@ -117,11 +127,10 @@ export default function Checkout() {
 
             <TouchableOpacity
               onPress={() => setPaymentMethod("apple")}
-              className={`flex-row items-center p-4 rounded-xl border ${
-                paymentMethod === "apple"
-                  ? "border-purple-600 bg-purple-50"
-                  : "border-gray-200"
-              }`}
+              className={`flex-row items-center p-4 rounded-xl border ${paymentMethod === "apple"
+                ? "border-purple-600 bg-purple-50"
+                : "border-gray-200"
+                }`}
             >
               <FontAwesome name="apple" size={24} color="#000" />
               <Text className="ml-3 font-medium text-gray-800">Apple Pay</Text>
@@ -248,9 +257,8 @@ export default function Checkout() {
         <TouchableOpacity
           onPress={handlePayment}
           disabled={isLoading}
-          className={`bg-purple-600 py-4 px-6 rounded-xl flex-row justify-center items-center ${
-            isLoading ? "opacity-70" : ""
-          }`}
+          className={`bg-purple-600 py-4 px-6 rounded-xl flex-row justify-center items-center ${isLoading ? "opacity-70" : ""
+            }`}
         >
           {isLoading ? (
             <Text className="text-white font-bold text-lg">
