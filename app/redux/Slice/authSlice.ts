@@ -42,15 +42,15 @@ export const Login = createAsyncThunk(
   'user/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const user = await loginApi({ email, password });
-      const token = user.token;
+      const res = await loginApi({ email, password });
+      const { token, user } = res;
+
+      console.log(token, user);
 
       await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('User', JSON.stringify(user)); 
 
-      const decodedToken: any = jwtDecode(token);
-      const userId = decodedToken.id;
-
-      return { ...user, userId };
+      return { token, user };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
@@ -134,15 +134,14 @@ const authSlice = createSlice({
       .addCase(Login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.token = action.payload.token;
-        state.userId = action.payload.userId;
       })
       .addCase(Login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-
+      
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;

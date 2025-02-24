@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const path = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_URL,
+  baseURL: `http://${process.env.EXPO_PUBLIC_URL}:5000/`,
 });
 
 path.interceptors.request.use(
