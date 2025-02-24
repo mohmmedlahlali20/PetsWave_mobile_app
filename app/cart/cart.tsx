@@ -1,4 +1,12 @@
-import { FlatList, Text, View, ScrollView, TouchableOpacity, Image, ToastAndroid } from 'react-native';
+import {
+  FlatList,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ToastAndroid,
+} from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -6,11 +14,44 @@ import { replaceIp } from '~/hooks/helpers';
 import { Pets } from '~/constant/type';
 import { Stack } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
+import { command } from '~/app/redux/Slice/commandSlice';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState<Pets[]>([]);
   const dispatch = useAppDispatch();
-  const { isLoading, error, commands } = useAppSelector((state) => state.command);
+  const { isLoading, error } = useAppSelector((state) => state.command);
+
+  const CommandeCart = async () => {
+    if (cartItems.length === 0) {
+      ToastAndroid.show('Votre panier est vide.', ToastAndroid.SHORT);
+      return;
+    }
+
+    try {
+      const userData = await AsyncStorage.getItem('User');
+      const userId = userData ? JSON.parse(userData)._id : null;
+
+      if (!userId) {
+        ToastAndroid.show("Erreur : utilisateur non trouvé.", ToastAndroid.SHORT);
+        return;
+      }
+
+      const petsId = cartItems.map((item) => item._id);
+      const totalamount = cartItems.reduce((sum, item) => sum + (item.Prix || 0), 0);
+
+      await dispatch(command({ petsId, userId, totalamount })).unwrap();
+
+      const cartKey = `cart_${userId}`;
+      await AsyncStorage.removeItem(cartKey);
+      setCartItems([]);
+
+      ToastAndroid.show('Commande enregistrée avec succès.', ToastAndroid.SHORT);
+    } catch (error) {
+      console.error('Erreur lors de la commande :', error);
+      ToastAndroid.show("Échec de l'enregistrement de la commande.", ToastAndroid.SHORT);
+    }
+  };
+
 
   const loadCart = async () => {
     try {
@@ -40,10 +81,6 @@ export default function Cart() {
   useEffect(() => {
     loadCart();
   }, []);
-
-  useEffect(() => {
-    console.log('Articles du panier :', cartItems);
-  }, [cartItems]);
 
   const removeItem = async (petId: string) => {
     try {
@@ -128,7 +165,7 @@ export default function Cart() {
 
         <TouchableOpacity
           className="flex-row items-center justify-center rounded-xl bg-purple-600 px-6 py-4"
-          onPress={() => console.log('Procéder au paiement')}>
+          onPress={CommandeCart}>
           <Feather name="credit-card" size={20} color="#fff" />
           <Text className="ml-2 text-lg font-bold text-white">
             Procéder au paiement ({totalPrice} MAD)
