@@ -98,7 +98,6 @@ export default function Cart() {
       await AsyncStorage.setItem(cartKey, JSON.stringify(updatedCart));
       setCartItems(updatedCart);
 
-      // ✅ Affichage d'un Toast pour confirmer la suppression
       ToastAndroid.show('Animal supprimé du panier.', ToastAndroid.SHORT);
     } catch (error) {
       console.error(`Erreur lors de la suppression de ${petId} :`, error);
