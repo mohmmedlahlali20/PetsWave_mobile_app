@@ -46,11 +46,11 @@ export default function ProductDetail() {
     const dispatch = useAppDispatch()
     const { petSelected, isLoading, error } = useAppSelector((state) => state.pets)
     useEffect(() => {
-        const fetchPet = async () => {
-            await dispatch(getOnePet(petId as string)).unwrap()
+        if (petId) {
+            dispatch(getOnePet(petId as string)).unwrap();
         }
-        fetchPet()
-    }, [dispatch])
+    }, [dispatch, petId]);
+    
 
     const renderStars = (rating: number) => {
         return [...Array(5)].map((_, index) => (
@@ -62,36 +62,45 @@ export default function ProductDetail() {
 
     const addToCart = async () => {
         try {
-            const pet = {
-                _id: petSelected?._id,
-                name: petSelected?.name,
-                Prix: petSelected?.Prix,
-                images: petSelected?.images,
-            };
+            const userData = await AsyncStorage.getItem("User");
+            const userId = userData ? JSON.parse(userData)._id : null;
     
-            const existingCart = await AsyncStorage.getItem("cart");
+            if (!userId) {
+                Alert.alert("Erreur", "Utilisateur non identifié.");
+                return;
+            }
+    
+            const cartKey = `cart_${userId}`;
+            const existingCart = await AsyncStorage.getItem(cartKey);
             const cart = existingCart ? JSON.parse(existingCart) : [];
     
-            if (!cart.some((item: Pets) => item._id === pet._id)) { 
-                cart.push(pet);
-                await AsyncStorage.setItem("cart", JSON.stringify(cart));
-                ToastAndroid.show("Animal ajouté au panier !", ToastAndroid.SHORT);
-            } else {
-                Alert.alert(
-                    "Animal déjà dans le panier",
-                    "Cet animal est déjà présent dans votre panier.",
-                    [{ text: "OK" }]
-                );
+            if (cart.some((item: any) => item.petId === petSelected?._id)) {
+                Alert.alert("Animal déjà dans le panier", "Cet animal est déjà présent dans votre panier.");
+                return;
             }
+    
+            if (!petSelected) {
+                Alert.alert("Erreur", "Aucun animal sélectionné.");
+                return;
+            }
+    
+            const pet = {
+                petId: petSelected._id,
+                name: petSelected.name,
+                Prix: petSelected.Prix,
+                images: petSelected.images || [],
+            };
+    
+            cart.push(pet);
+            await AsyncStorage.setItem(cartKey, JSON.stringify(cart));
+    
+            ToastAndroid.show("Animal ajouté au panier !", ToastAndroid.SHORT);
         } catch (error) {
             console.error("Erreur lors de l'ajout au panier :", error);
-            Alert.alert(
-                "Erreur",
-                "Une erreur s'est produite lors de l'ajout de l'animal au panier. Veuillez réessayer.",
-                [{ text: "OK" }]
-            );
+            Alert.alert("Erreur", "Impossible d'ajouter l'animal au panier.");
         }
     };
+    
     
 
 
