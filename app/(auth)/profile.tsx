@@ -1,247 +1,192 @@
+import { Stack, useRouter } from 'expo-router';
+import { Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { Commands, Status, User } from '~/constant/type';
+import { useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ProfileSlice } from '../redux/Slice/authSlice';
 
 
-import { Stack, useRouter } from "expo-router"
-import { Text, View, ScrollView, TouchableOpacity, Image } from "react-native"
-import { Feather } from "@expo/vector-icons"
-import React, { useState } from "react"
 
-type OrderStatus = "en_cours" | "livré" | "annulé"
-
-interface Order {
-  id: string
-  date: string
-  total: number
-  status: OrderStatus
-  items: number
-}
-
-interface UserInfo {
-  name: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  avatar?: string
-}
-
-const mockOrders: Order[] = [
-  {
-    id: "CMD-001",
-    date: "2024-02-20",
-    total: 149.99,
-    status: "livré",
-    items: 2,
-  },
-  {
-    id: "CMD-002",
-    date: "2024-02-18",
-    total: 89.99,
-    status: "en_cours",
-    items: 1,
-  },
-  {
-    id: "CMD-003",
-    date: "2024-02-15",
-    total: 199.99,
-    status: "annulé",
-    items: 3,
-  },
-]
-
-const userInfo: UserInfo = {
-  name: "Jean Dupont",
-  email: "jean.dupont@example.com",
-  phone: "+212 6XX-XXXXXX",
-  address: "123 Rue de la Paix",
-  city: "Casablanca",
-  avatar: "/placeholder.svg?height=200&width=200",
-}
 
 export default function Profile() {
-  const router = useRouter()
-  const [isEditing, setIsEditing] = useState(false)
-  const [userDetails, setUserDetails] = useState<UserInfo>(userInfo)
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [userDetails, setUserDetails] = useState<User>();
+  const {isLoading, userProfile} = useAppSelector((state)=> state.auth)
+  const dispatch = useAppDispatch()
+console.log('====================================');
+console.log(userProfile);
+console.log('====================================');
 
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case "en_cours":
-        return "bg-yellow-100 text-yellow-800"
-      case "livré":
-        return "bg-green-100 text-green-800"
-      case "annulé":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+  useEffect(()=>{
+    const profileData = async () => {
+      const userData = await AsyncStorage.getItem('User');
+      const userId = userData ? JSON.parse(userData)._id : null;
+
+      await dispatch(ProfileSlice(userId))
     }
-  }
+    profileData()
+  }, [dispatch])
 
-  const getStatusText = (status: OrderStatus) => {
+
+
+  const getStatusColor = (status: Status) => {
     switch (status) {
-      case "en_cours":
-        return "En cours"
-      case "livré":
-        return "Livré"
-      case "annulé":
-        return "Annulé"
+      case Status.Pending:
+        return 'bg-yellow-100 text-yellow-800';
+      case Status.InProgress:
+        return 'bg-green-100 text-green-800';
+      case Status.Completed:
+        return 'bg-red-100 text-red-800';
+      case Status.Cancelled:
+        return 'bg-gray-100 text-gray-800';
       default:
-        return status
+        return 'bg-gray-100 text-gray-800';
     }
-  }
+  };
+  
+  const getStatusText = (status: Status) => {
+    switch (status) {
+      case Status.Pending:
+        return 'Pending';
+      case Status.InProgress:
+        return 'Livré';
+      case Status.Completed:
+        return 'Annulé';
+      case Status.Cancelled:
+        return 'Annulé';
+      default:
+        return status;
+    }
+  };
 
-  const renderSettingItem = (icon: string, title: string, subtitle?: string, action?: () => void) => (
+  const renderSettingItem = (
+    icon: string,
+    title: string,
+    subtitle?: string,
+    action?: () => void
+  ) => (
     <TouchableOpacity
       onPress={action}
-      className="flex-row items-center p-4 bg-white rounded-xl mb-2 shadow-sm"
-    >
-      <View className="bg-[#491975]/10 p-2 rounded-full">
+      className="mb-2 flex-row items-center rounded-xl bg-white p-4 shadow-sm">
+      <View className="rounded-full bg-[#491975]/10 p-2">
         <Feather name={icon as any} size={20} color="#491975" />
       </View>
-      <View className="flex-1 ml-3">
-        <Text className="text-gray-800 font-medium">{title}</Text>
-        {subtitle && <Text className="text-gray-500 text-sm">{subtitle}</Text>}
+      <View className="ml-3 flex-1">
+        <Text className="font-medium text-gray-800">{title}</Text>
+        {subtitle && <Text className="text-sm text-gray-500">{subtitle}</Text>}
       </View>
       <Feather name="chevron-right" size={20} color="#9CA3AF" />
     </TouchableOpacity>
-  )
+  );
 
   return (
     <ScrollView className="flex-1 bg-[#F5F3FF]">
       <Stack.Screen
         options={{
-          title: "Mon Profil",
-          headerStyle: { backgroundColor: "#491975" },
-          headerTintColor: "#fff",
-          headerTitleStyle: { fontWeight: "bold" },
+          title: 'Mon Profil',
+          headerStyle: { backgroundColor: '#491975' },
+          headerTintColor: '#fff',
+          headerTitleStyle: { fontWeight: 'bold' },
         }}
       />
 
-      <View className="bg-[#491975] pt-4 pb-20 px-4">
+      {/* <View className="bg-[#491975] px-4 pb-20 pt-4">
         <View className="flex-row items-center">
           <View className="relative">
             <Image
               source={{ uri: userDetails.avatar }}
-              className="w-20 h-20 rounded-full border-2 border-white"
+              className="h-20 w-20 rounded-full border-2 border-white"
             />
-            <TouchableOpacity className="absolute bottom-0 right-0 bg-white p-1 rounded-full">
+            <TouchableOpacity className="absolute bottom-0 right-0 rounded-full bg-white p-1">
               <Feather name="edit-2" size={12} color="#491975" />
             </TouchableOpacity>
           </View>
           <View className="ml-4 flex-1">
-            <Text className="text-white text-xl font-bold">{userDetails.name}</Text>
+            <Text className="text-xl font-bold text-white">{userDetails.name}</Text>
             <Text className="text-purple-200">{userDetails.email}</Text>
           </View>
         </View>
-      </View>
+      </View> */}
 
-
-      <View className="flex-row justify-between px-4 -mt-16 mb-6">
-        <View className="bg-white rounded-xl p-4 flex-1 mr-2 shadow-lg">
-          <Text className="text-gray-500 text-sm">Commandes</Text>
+      <View className="-mt-16 mb-6 flex-row justify-between px-4">
+        <View className="mr-2 flex-1 rounded-xl bg-white p-4 shadow-lg">
+          <Text className="text-sm text-gray-500">Commandes</Text>
           <Text className="text-2xl font-bold text-[#491975]">12</Text>
         </View>
-        <View className="bg-white rounded-xl p-4 flex-1 mx-2 shadow-lg">
-          <Text className="text-gray-500 text-sm">En cours</Text>
+        <View className="mx-2 flex-1 rounded-xl bg-white p-4 shadow-lg">
+          <Text className="text-sm text-gray-500">En cours</Text>
           <Text className="text-2xl font-bold text-[#491975]">2</Text>
         </View>
-        <View className="bg-white rounded-xl p-4 flex-1 ml-2 shadow-lg">
-          <Text className="text-gray-500 text-sm">Points</Text>
+        <View className="ml-2 flex-1 rounded-xl bg-white p-4 shadow-lg">
+          <Text className="text-sm text-gray-500">Points</Text>
           <Text className="text-2xl font-bold text-[#491975]">350</Text>
         </View>
       </View>
 
-      <View className="px-4 space-y-6">
-
+      <View className="space-y-6 px-4">
         <View>
-          <Text className="text-xl font-semibold text-gray-800 mb-4">
-            Commandes récentes
-          </Text>
-          <View className="space-y-3">
+          <Text className="mb-4 text-xl font-semibold text-gray-800">Commandes récentes</Text>
+          {/* <View className="space-y-3">
             {mockOrders.map((order) => (
-              <TouchableOpacity
-                key={order.id}
-                className="bg-white p-4 rounded-xl shadow-sm"
-                
-              >
-                <View className="flex-row justify-between items-start mb-2">
+              <TouchableOpacity key={order.id} className="rounded-xl bg-white p-4 shadow-sm">
+                <View className="mb-2 flex-row items-start justify-between">
                   <View>
-                    <Text className="font-medium text-gray-800">
-                      Commande #{order.id}
-                    </Text>
-                    <Text className="text-gray-500 text-sm">
-                      {new Date(order.date).toLocaleDateString("fr-FR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
+                    <Text className="font-medium text-gray-800">Commande #{order.id}</Text>
+                    <Text className="text-sm text-gray-500">
+                      {new Date(order.date).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
                       })}
                     </Text>
                   </View>
-                  <View className={`px-3 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                    <Text className="text-sm font-medium">
-                      {getStatusText(order.status)}
-                    </Text>
+                  <View className={`rounded-full px-3 py-1 ${getStatusColor(order.status)}`}>
+                    <Text className="text-sm font-medium">{getStatusText(order.status)}</Text>
                   </View>
                 </View>
-                <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center justify-between">
                   <Text className="text-gray-500">
-                    {order.items} article{order.items > 1 ? "s" : ""}
+                    {order.items} article{order.items > 1 ? 's' : ''}
                   </Text>
-                  <Text className="font-bold text-[#491975]">
-                    {order.total.toFixed(2)} MAD
-                  </Text>
+                  <Text className="font-bold text-[#491975]">{order.total.toFixed(2)} MAD</Text>
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
+          </View> */}
         </View>
 
         <View>
-          <Text className="text-xl font-semibold text-gray-800 mb-4">
-            Paramètres
-          </Text>
+          <Text className="mb-4 text-xl font-semibold text-gray-800">Paramètres</Text>
           <View>
-            {renderSettingItem(
-              "map-pin",
-              "Adresses de livraison",
-              "Gérer vos adresses",
-              () => router.push("/")
+            {renderSettingItem('map-pin', 'Adresses de livraison', 'Gérer vos adresses', () =>
+              router.push('/')
             )}
-            {renderSettingItem(
-              "credit-card",
-              "Méthodes de paiement",
-              "Gérer vos cartes",
-              () => router.push("/")
+            {renderSettingItem('credit-card', 'Méthodes de paiement', 'Gérer vos cartes', () =>
+              router.push('/')
             )}
-            {renderSettingItem(
-              "bell",
-              "Notifications",
-              "Gérer vos préférences",
-              () => router.push("/")
+            {renderSettingItem('bell', 'Notifications', 'Gérer vos préférences', () =>
+              router.push('/')
             )}
-            {renderSettingItem(
-              "lock",
-              "Sécurité",
-              "Mot de passe et authentification",
-              () => router.push("/")
+            {renderSettingItem('lock', 'Sécurité', 'Mot de passe et authentification', () =>
+              router.push('/')
             )}
-            {renderSettingItem(
-              "help-circle",
-              "Aide & Support",
-              "FAQ et contact",
-              () => router.push("/")
+            {renderSettingItem('help-circle', 'Aide & Support', 'FAQ et contact', () =>
+              router.push('/')
             )}
           </View>
         </View>
 
         <TouchableOpacity
-          className="bg-red-500 py-4 px-6 rounded-xl flex-row justify-center items-center mb-8"
-          onPress={() => {}}
-        >
+          className="mb-8 flex-row items-center justify-center rounded-xl bg-red-500 px-6 py-4"
+          onPress={() => {}}>
           <Feather name="log-out" size={20} color="#fff" />
-          <Text className="ml-2 text-white font-semibold">
-            Se déconnecter
-          </Text>
+          <Text className="ml-2 font-semibold text-white">Se déconnecter</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
-  )
+  );
 }
