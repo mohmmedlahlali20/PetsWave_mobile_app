@@ -1,7 +1,7 @@
 import path from "~/app/axios/path";
 import { Status } from "~/constant/type";
 
-const command = async ({ petsId, userId, totalamount }: { petsId: string[]; userId: string , totalamount:number}) => {
+const commandApi = async ({ petsId, userId, totalamount }: { petsId: string[]; userId: string , totalamount:number}) => {
     
         const res = await path.post("commandes/Passe_commandes", {
             petsId,
@@ -16,5 +16,5 @@ const command = async ({ petsId, userId, totalamount }: { petsId: string[]; user
 };
 
 export{
-    command
+    commandApi
 };
