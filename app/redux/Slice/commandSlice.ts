@@ -6,13 +6,13 @@ const initialState: {
   isLoading: boolean;
   status: Status;
   error: string | null;
-  commands: Commands[];
+  command: Commands[];
   selectedCommands: Commands | null;
 } = {
   isLoading: false,
   status: Status.Pending,
   error: null,
-  commands: [],
+  command: [],
   selectedCommands: null,
 };
 
@@ -35,6 +35,8 @@ export const GetCommandeByUserId = createAsyncThunk(
   'getCommand/command',
   async (userId: string, { rejectWithValue }) => {
     try {
+      console.log( await GetCommandeByUserIdApi(userId));
+      
       return  await GetCommandeByUserIdApi(userId);
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || `Cannot find command with user ID: ${userId}`);
@@ -55,7 +57,7 @@ const commandSlice = createSlice({
       .addCase(command.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        state.commands.unshift(action.payload);
+        state.command.unshift(action.payload);
       })
       .addCase(command.rejected, (state, action) => {
         state.isLoading = false; 
@@ -66,9 +68,9 @@ const commandSlice = createSlice({
         state.error = null;
       })
       .addCase(GetCommandeByUserId.fulfilled, (state, action: PayloadAction<Commands[]>) => {
+        state.command = action.payload;
         state.isLoading = false;
         state.error = null;
-        state.commands = action.payload;
       })
       .addCase(GetCommandeByUserId.rejected, (state, action) => {
         state.isLoading = false;

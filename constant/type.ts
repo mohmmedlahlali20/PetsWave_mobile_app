@@ -8,7 +8,7 @@ export interface User {
 
 
 export interface Category {
-    id: string
+    _id: any
     name: string
 }
 
@@ -44,8 +44,8 @@ export interface Pets {
 
 export interface Commands {
     _id: string
-    petsId: string,
-    userId: string,
+    petsId: Pets,
+    userId: User,
     status: Status,
     orderDate: Date,
     totalAmount: number
@@ -54,7 +54,7 @@ export interface Commands {
 
 export enum Status {
     Pending = "pending",
-    InProgress = "inProgress",
+    InProgress = "InProgress",
     Completed = "completed",
     Cancelled = "cancelled"
 }

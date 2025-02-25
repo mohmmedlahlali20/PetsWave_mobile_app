@@ -48,6 +48,7 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const dispatch = useAppDispatch();
   const { petSelected, isLoading, error } = useAppSelector((state) => state.pets);
+  
   useEffect(() => {
     if (petId) {
       dispatch(getOnePet(petId as string)).unwrap();
@@ -115,7 +116,7 @@ export default function ProductDetail() {
           <View className="h-96 w-screen">
             {petSelected?.images?.length > 0 && (
               <Image
-                source={{ uri: replaceIp(petSelected.images[selectedImage], '192.168.8.134') }}
+                source={{ uri: replaceIp(petSelected.images[selectedImage], process.env.EXPO_PUBLIC_URL) }}
                 className="h-96 w-screen"
                 resizeMode="cover"
               />
@@ -137,7 +138,7 @@ export default function ProductDetail() {
                 selectedImage === index ? 'border-purple-600' : 'border-transparent'
               }`}>
               <Image
-                source={{ uri: replaceIp(image, '192.168.8.134') }}
+                source={{ uri: replaceIp(image, process.env.EXPO_PUBLIC_URL) }}
                 className="h-16 w-16"
                 resizeMode="cover"
               />
