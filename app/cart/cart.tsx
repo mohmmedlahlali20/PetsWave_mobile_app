@@ -15,6 +15,7 @@ import { Pets } from '~/constant/type';
 import { Stack } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
 import { command } from '~/app/redux/Slice/commandSlice';
+import { getPets } from '../redux/Slice/petSlice';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState<Pets[]>([]);
@@ -40,7 +41,8 @@ export default function Cart() {
       const totalamount = cartItems.reduce((sum, item) => sum + (item.Prix || 0), 0);
 
       await dispatch(command({ petsId, userId, totalamount })).unwrap();
-
+      await dispatch(getPets()).unwrap();
+    
       const cartKey = `cart_${userId}`;
       await AsyncStorage.removeItem(cartKey);
       setCartItems([]);
