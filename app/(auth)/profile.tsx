@@ -7,29 +7,38 @@ import { useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProfileSlice } from '../redux/Slice/authSlice';
+import { GetCommandeByUserId } from '../redux/Slice/commandSlice';
 
 
 
 
 export default function Profile() {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
-  const [userDetails, setUserDetails] = useState<User>();
+ 
   const {isLoading, userProfile} = useAppSelector((state)=> state.auth)
+  const {commands} = useAppSelector((state)=> state.command)
+  console.log('====================================');
+  console.log(commands);
+  console.log('====================================');
   const dispatch = useAppDispatch()
-console.log('====================================');
-console.log(userProfile);
-console.log('====================================');
 
-  useEffect(()=>{
-    const profileData = async () => {
+
+  useEffect(() => {
+    const fetchUserData = async () => {
       const userData = await AsyncStorage.getItem('User');
       const userId = userData ? JSON.parse(userData)._id : null;
-
-      await dispatch(ProfileSlice(userId))
-    }
-    profileData()
-  }, [dispatch])
+  
+      if (userId) {
+        await Promise.all([
+          dispatch(ProfileSlice(userId)),
+          dispatch(GetCommandeByUserId(userId))
+        ]);
+      }
+    };
+  
+    fetchUserData();
+  }, [dispatch]);
+  
 
 
 
@@ -94,11 +103,11 @@ console.log('====================================');
         }}
       />
 
-      {/* <View className="bg-[#491975] px-4 pb-20 pt-4">
+       <View className="bg-[#491975] px-4 pb-20 pt-4">
         <View className="flex-row items-center">
           <View className="relative">
             <Image
-              source={{ uri: userDetails.avatar }}
+              source={{ uri: userProfile?.avatar ?? '/placeholder' }}
               className="h-20 w-20 rounded-full border-2 border-white"
             />
             <TouchableOpacity className="absolute bottom-0 right-0 rounded-full bg-white p-1">
@@ -106,11 +115,11 @@ console.log('====================================');
             </TouchableOpacity>
           </View>
           <View className="ml-4 flex-1">
-            <Text className="text-xl font-bold text-white">{userDetails.name}</Text>
-            <Text className="text-purple-200">{userDetails.email}</Text>
+            <Text className="text-xl font-bold text-white">{userProfile?.firstName}</Text>
+            <Text className="text-purple-200">{userProfile?.email}</Text>
           </View>
         </View>
-      </View> */}
+      </View> 
 
       <View className="-mt-16 mb-6 flex-row justify-between px-4">
         <View className="mr-2 flex-1 rounded-xl bg-white p-4 shadow-lg">
@@ -130,14 +139,14 @@ console.log('====================================');
       <View className="space-y-6 px-4">
         <View>
           <Text className="mb-4 text-xl font-semibold text-gray-800">Commandes récentes</Text>
-          {/* <View className="space-y-3">
-            {mockOrders.map((order) => (
-              <TouchableOpacity key={order.id} className="rounded-xl bg-white p-4 shadow-sm">
+          <View className="space-y-3">
+            {commands.map((order) => (
+              <TouchableOpacity key={order._id} className="rounded-xl bg-white p-4 shadow-sm">
                 <View className="mb-2 flex-row items-start justify-between">
                   <View>
-                    <Text className="font-medium text-gray-800">Commande #{order.id}</Text>
+                    <Text className="font-medium text-gray-800">Commande #{order._id}</Text>
                     <Text className="text-sm text-gray-500">
-                      {new Date(order.date).toLocaleDateString('fr-FR', {
+                      {new Date(order.orderDate).toLocaleDateString('fr-FR', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -150,13 +159,13 @@ console.log('====================================');
                 </View>
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-500">
-                    {order.items} article{order.items > 1 ? 's' : ''}
+                    {/* {order.items} article{order.items > 1 ? 's' : ''} */}
                   </Text>
-                  <Text className="font-bold text-[#491975]">{order.total.toFixed(2)} MAD</Text>
+                  <Text className="font-bold text-[#491975]">{order.totalAmount.toFixed(2)} MAD</Text>
                 </View>
               </TouchableOpacity>
             ))}
-          </View> */}
+          </View>
         </View>
 
         <View>
