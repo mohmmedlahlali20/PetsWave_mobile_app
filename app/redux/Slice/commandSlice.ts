@@ -1,7 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Commands, Status } from '~/constant/type';
-import { commandApi } from '../service/api/command';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { commandApi, GetCommandeByUserIdApi } from '../service/api/command';
 
 const initialState: {
   isLoading: boolean;
@@ -20,25 +19,25 @@ const initialState: {
 export const command = createAsyncThunk(
   'passeCommand/command',
   async (
-    {
-      petsId,
-      userId,
-      totalamount,
-    }: {
-      petsId: string[];
-      userId: string;
-      totalamount: number;
-    },
+    { petsId, userId, totalamount }: { petsId: string[]; userId: string; totalamount: number },
     { rejectWithValue }
   ) => {
     try {
-      return await commandApi({
-        petsId,
-        userId,
-        totalamount,
-      });
+      return await commandApi({ petsId, userId, totalamount });
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Cannot process command');
+    }
+  }
+);
+
+
+export const GetCommandeByUserId = createAsyncThunk(
+  'getCommand/command',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      return  await GetCommandeByUserIdApi(userId);
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || `Cannot find command with user ID: ${userId}`);
     }
   }
 );
@@ -56,9 +55,22 @@ const commandSlice = createSlice({
       .addCase(command.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        state.commands.push(action.payload);
+        state.commands.unshift(action.payload);
       })
       .addCase(command.rejected, (state, action) => {
+        state.isLoading = false; 
+        state.error = action.payload as string;
+      })
+      .addCase(GetCommandeByUserId.pending, (state) => {
+        state.isLoading = true; 
+        state.error = null;
+      })
+      .addCase(GetCommandeByUserId.fulfilled, (state, action: PayloadAction<Commands[]>) => {
+        state.isLoading = false;
+        state.error = null;
+        state.commands = action.payload;
+      })
+      .addCase(GetCommandeByUserId.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

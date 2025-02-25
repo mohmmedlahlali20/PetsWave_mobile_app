@@ -43,6 +43,7 @@ export interface Pets {
 
 
 export interface Commands {
+    _id: string
     petsId: string,
     userId: string,
     status: Status,

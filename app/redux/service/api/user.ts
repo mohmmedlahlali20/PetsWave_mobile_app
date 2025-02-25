@@ -27,10 +27,17 @@ const resetPasswordApi = async ({ email, newPassword }: { email: string; newPass
     return res.data;
 };
 
+
+const ProfileApi = async (userId: string) =>{
+    const res = await path.get(`auth/profile/${userId}`)
+    return res.data
+}
+
 export {
     registerApi, 
     loginApi,
     forgetPasswordApi,
     verificationOTPApi,
-    resetPasswordApi
+    resetPasswordApi,
+    ProfileApi
 };

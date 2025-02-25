@@ -51,10 +51,12 @@ export default function LoginComponent() {
       <ScrollView className="flex-1 bg-purple-50">
         <Stack.Screen
           options={{
-            title: 'Welcome Back',
+            title: 'Login',
             headerStyle: { backgroundColor: '#491975' },
             headerTintColor: '#fff',
             headerTitleStyle: { fontWeight: 'bold' },
+            headerBackVisible: false,
+            gestureEnabled: false,
           }}
         />
 

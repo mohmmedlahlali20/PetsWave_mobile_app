@@ -172,6 +172,8 @@ export default function ResetPassword() {
           headerStyle: { backgroundColor: '#491975' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
+          headerBackVisible: false,
+          gestureEnabled: false,
         }}
       />
 

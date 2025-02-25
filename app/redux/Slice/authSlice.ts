@@ -1,13 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 
-import { forgetPasswordApi, loginApi, registerApi, resetPasswordApi, verificationOTPApi } from '../service/api/user';
+import { forgetPasswordApi, loginApi, ProfileApi, registerApi, resetPasswordApi, verificationOTPApi } from '../service/api/user';
 
 import { User } from '~/constant/type';
 
 const initialState: {
   user: User | null;
+  userProfile: User | null
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
@@ -17,6 +18,7 @@ const initialState: {
   isOTPVerified: boolean
 } = {
   user: null,
+  userProfile: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -37,7 +39,6 @@ export const register = createAsyncThunk(
     }
   }
 );
-
 export const Login = createAsyncThunk(
   'user/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
@@ -48,7 +49,7 @@ export const Login = createAsyncThunk(
       console.log(token, user);
 
       await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('User', JSON.stringify(user)); 
+      await AsyncStorage.setItem('User', JSON.stringify(user));
 
       return { token, user };
     } catch (error: any) {
@@ -56,16 +57,15 @@ export const Login = createAsyncThunk(
     }
   }
 );
-
-export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValue }) => {
-  try {
-    await AsyncStorage.removeItem('token');
-    return null;
-  } catch (error: any) {
-    return rejectWithValue('Logout failed');
-  }
-});
-
+export const logout = createAsyncThunk('user/logout'
+  , async (_, { rejectWithValue }) => {
+    try {
+      await AsyncStorage.removeItem('token');
+      return null;
+    } catch (error: any) {
+      return rejectWithValue('Logout failed');
+    }
+  });
 export const forgetPassword = createAsyncThunk(
   'user/forgetPassword',
   async (email: string, { rejectWithValue }) => {
@@ -76,9 +76,6 @@ export const forgetPassword = createAsyncThunk(
     }
   }
 );
-
-
-
 export const verifyOTP = createAsyncThunk(
   "auth/verifyOTP",
   async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
@@ -90,9 +87,6 @@ export const verifyOTP = createAsyncThunk(
     }
   }
 );
-
-
-
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, newPassword }: { email: string; newPassword: string }, { rejectWithValue }) => {
@@ -104,6 +98,17 @@ export const resetPassword = createAsyncThunk(
     }
   }
 );
+export const ProfileSlice = createAsyncThunk("user/profile",
+  async (userId: string,{rejectWithValue}) => {
+    try {
+      return await ProfileApi(userId)
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || ' failed to get user Profile');
+
+    }
+
+  }
+)
 
 
 const authSlice = createSlice({
@@ -141,7 +146,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;
@@ -192,7 +197,21 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-      });
+      })
+
+      .addCase(ProfileSlice.pending, (state)=>{
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(ProfileSlice.fulfilled, (state, action: PayloadAction<User>)=>{
+        state.userProfile = action.payload;
+        state.isLoading= false;
+        state.error= null
+      })
+      .addCase(ProfileSlice.rejected, (state, action)=>{
+        state.isLoading = false;
+        state.error = action.payload as string
+      })
 
   },
 });
