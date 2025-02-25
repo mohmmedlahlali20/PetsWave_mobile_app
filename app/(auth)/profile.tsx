@@ -14,13 +14,13 @@ import { GetCommandeByUserId } from '../redux/Slice/commandSlice';
 
 export default function Profile() {
   const router = useRouter();
- 
-  const {isLoading, userProfile} = useAppSelector((state)=> state.auth)
-  const {commands} = useAppSelector((state)=> state.command)
-  console.log('====================================');
-  console.log(commands);
-  console.log('====================================');
   const dispatch = useAppDispatch()
+  const {userProfile} = useAppSelector((state)=> state.auth)
+  const {command=[], isLoading, error} = useAppSelector((state)=> state.command)
+
+  console.log('====================================');
+  console.log('is array', Array.isArray(command));
+  console.log('====================================');
 
 
   useEffect(() => {
@@ -40,6 +40,9 @@ export default function Profile() {
   }, [dispatch]);
   
 
+  const totalamount = Array.isArray(command) 
+  ? command.reduce((sum, item) => sum + (Number(item?.totalAmount) || 0), 0)
+  : 0;
 
 
   const getStatusColor = (status: Status) => {
@@ -47,9 +50,9 @@ export default function Profile() {
       case Status.Pending:
         return 'bg-yellow-100 text-yellow-800';
       case Status.InProgress:
-        return 'bg-green-100 text-green-800';
+        return 'bg-blue-100 text-blue-800';
       case Status.Completed:
-        return 'bg-red-100 text-red-800';
+        return 'bg-green-100 text-green-800';
       case Status.Cancelled:
         return 'bg-gray-100 text-gray-800';
       default:
@@ -62,9 +65,9 @@ export default function Profile() {
       case Status.Pending:
         return 'Pending';
       case Status.InProgress:
-        return 'Livré';
+        return 'InProgress';
       case Status.Completed:
-        return 'Annulé';
+        return 'Completed';
       case Status.Cancelled:
         return 'Annulé';
       default:
@@ -96,7 +99,7 @@ export default function Profile() {
     <ScrollView className="flex-1 bg-[#F5F3FF]">
       <Stack.Screen
         options={{
-          title: 'Mon Profil',
+          title: userProfile?.firstName,
           headerStyle: { backgroundColor: '#491975' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
@@ -115,7 +118,7 @@ export default function Profile() {
             </TouchableOpacity>
           </View>
           <View className="ml-4 flex-1">
-            <Text className="text-xl font-bold text-white">{userProfile?.firstName}</Text>
+            <Text className="text-xl font-bold text-white">{userProfile?.firstName} {userProfile?.lastName}</Text>
             <Text className="text-purple-200">{userProfile?.email}</Text>
           </View>
         </View>
@@ -132,7 +135,7 @@ export default function Profile() {
         </View>
         <View className="ml-2 flex-1 rounded-xl bg-white p-4 shadow-lg">
           <Text className="text-sm text-gray-500">Points</Text>
-          <Text className="text-2xl font-bold text-[#491975]">350</Text>
+          <Text className="text-2xl font-bold text-[#491975]">{totalamount}</Text>
         </View>
       </View>
 
@@ -140,9 +143,9 @@ export default function Profile() {
         <View>
           <Text className="mb-4 text-xl font-semibold text-gray-800">Commandes récentes</Text>
           <View className="space-y-3">
-            {commands.map((order) => (
-              <TouchableOpacity key={order._id} className="rounded-xl bg-white p-4 shadow-sm">
-                <View className="mb-2 flex-row items-start justify-between">
+            {command.map((order) => (
+                <View key={order._id}>
+                  <View className="mb-2 flex-row items-start justify-between">
                   <View>
                     <Text className="font-medium text-gray-800">Commande #{order._id}</Text>
                     <Text className="text-sm text-gray-500">
@@ -159,11 +162,11 @@ export default function Profile() {
                 </View>
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-500">
-                    {/* {order.items} article{order.items > 1 ? 's' : ''} */}
+                     {order.userId?.firstName}
                   </Text>
                   <Text className="font-bold text-[#491975]">{order.totalAmount.toFixed(2)} MAD</Text>
                 </View>
-              </TouchableOpacity>
+                </View>
             ))}
           </View>
         </View>
