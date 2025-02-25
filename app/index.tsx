@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { Text, View, Image, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
 import { getCategory } from './redux/Slice/categorySlice';
@@ -17,6 +17,8 @@ export default function Home() {
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
 
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
   useEffect(() => {
     if (!isAuthenticated) {
       setTimeout(() => {
@@ -28,6 +30,7 @@ export default function Home() {
   const handleLogout = () => {
     dispatch(logout());
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,6 +43,10 @@ export default function Home() {
 
     fetchData();
   }, [dispatch]);
+
+  const filteredPets = selectedCategory
+    ? pets.filter((pet) => pet.category._id === selectedCategory)
+    : pets;
 
   return (
     <ScrollView className="flex-1 bg-purple-50" scrollEventThrottle={16}>
@@ -89,7 +96,7 @@ export default function Home() {
             </TouchableOpacity>
             <TouchableOpacity
               className="items-center"
-              onPress={() => router.push('/(pets)/serarch')}>
+              onPress={() => router.push('/(pets)/search')}>
               <View className="mb-1 rounded-full bg-purple-600 p-3 shadow-sm">
                 <Feather name="search" size={20} color="#fff" />
               </View>
@@ -101,10 +108,11 @@ export default function Home() {
         <Text className="mb-4 text-xl font-semibold text-gray-800">Catégories</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-8">
           {categories?.length > 0 ? (
-            categories.map((category, index) => (
+            categories.map((category) => (
               <TouchableOpacity
-                key={Math.random()}
+                key={category._id}
                 className="mr-6 items-center"
+                onPress={() => setSelectedCategory(category._id)}
                 style={{
                   transform: [
                     {
@@ -129,25 +137,25 @@ export default function Home() {
 
         <View className="mb-6 flex-row items-center justify-between">
           <Text className="text-xl font-semibold text-gray-800">Produits en vedette</Text>
-          <TouchableOpacity className="rounded-full bg-purple-100 px-4 py-2">
-            <Text className="font-medium text-purple-600">Voir tout</Text>
+          <TouchableOpacity className="rounded-full bg-purple-100 px-4 py-2" onPress={() => setSelectedCategory(null)}>
+            <Text className="font-medium text-purple-600">Voir tous les animaux</Text>
           </TouchableOpacity>
         </View>
 
-        {pets.length > 0 ? (
+        {filteredPets.length > 0 ? (
           <ScrollView
             horizontal={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ gap: 16, padding: 16 }}>
-            {pets.map((pet, index) => (
+            {filteredPets.map((pet) => (
               <TouchableOpacity
-                key={index}
+                key={pet._id}
                 className="overflow-hidden rounded-2xl bg-white shadow-lg"
                 activeOpacity={0.8}
                 onPress={() => router.push(`/petsDetails?petId=${pet._id}`)}>
                 {pet.images && pet.images.length > 0 ? (
                   <Image
-                    source={{ uri: replaceIp(pet.images[0], '192.168.8.134') }}
+                    source={{ uri: replaceIp(pet.images[0], process.env.EXPO_PUBLIC_URL) }}
                     className="h-56 w-full"
                     resizeMode="cover"
                   />
