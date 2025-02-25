@@ -49,6 +49,8 @@ export default function Home() {
           headerStyle: { backgroundColor: '#491975' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
+          headerBackVisible: false,
+          gestureEnabled: false,
         }}
       />
 
