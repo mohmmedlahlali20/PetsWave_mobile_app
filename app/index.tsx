@@ -42,7 +42,7 @@ export default function Home() {
     };
 
     fetchData();
-  }, [dispatch]);
+  }, []);
 
   const filteredPets = selectedCategory
     ? pets.filter((pet) => pet.category._id === selectedCategory)
