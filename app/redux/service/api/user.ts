@@ -1,9 +1,10 @@
+import axios from "axios"
 import path from "~/app/axios/path"
 import { User } from "~/constant/type"
 
 const registerApi = async (registerData: User) => {
     const response = await path.post("auth/register", registerData)
-    console.log("User registered:", response.data)
+    
     return response.data
 }
 const loginApi = async ({email, password}:{email:string, password: string}) => {
@@ -33,11 +34,23 @@ const ProfileApi = async (userId: string) =>{
     return res.data
 }
 
+
+const updateProfileApi = async ({ userId, avatar }: { userId: string; avatar: string }) => {
+    try {
+        const res = await path.patch(`auth/update-profile/${userId}`, { avatar });
+        return res.data;
+    } catch (error) {
+        console.error("Error updating profile:", error);
+    }
+}
+
+
 export {
     registerApi, 
     loginApi,
     forgetPasswordApi,
     verificationOTPApi,
     resetPasswordApi,
-    ProfileApi
+    ProfileApi,
+    updateProfileApi
 };
