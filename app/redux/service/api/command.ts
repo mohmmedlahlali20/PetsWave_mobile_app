@@ -18,7 +18,7 @@ const commandApi = async ({ petsId, userId, totalamount }: { petsId: string[]; u
 
 const GetCommandeByUserIdApi= async(userId: string)=>{
     const res = await path.get(`commandes/GetCommandeByUserId/${userId}`)
-    console.log('res', res.data.userCommandes);
+   
     
     return res.data.userCommandes || []
 }
