@@ -35,8 +35,6 @@ export const GetCommandeByUserId = createAsyncThunk(
   'getCommand/command',
   async (userId: string, { rejectWithValue }) => {
     try {
-      console.log( await GetCommandeByUserIdApi(userId));
-      
       return  await GetCommandeByUserIdApi(userId);
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || `Cannot find command with user ID: ${userId}`);
