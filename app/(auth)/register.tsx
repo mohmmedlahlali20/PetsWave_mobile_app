@@ -53,7 +53,7 @@ export default function Register() {
       Alert.alert('Welcome Back! 🐾', 'You are already logged in!');
       router.push('/');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   return (
     <KeyboardAvoidingView
