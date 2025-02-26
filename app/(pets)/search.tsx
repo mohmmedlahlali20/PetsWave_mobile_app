@@ -23,7 +23,6 @@ export default function Search() {
       pet.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Filter by sex
     if (filterBySex !== "All") {
       filtered = filtered.filter((pet) => pet.gender === filterBySex);
     }
@@ -33,7 +32,7 @@ export default function Search() {
     );
 
     setFilteredPets(filtered);
-  }, [searchQuery, pets, sortingByPrice, filterBySex]);
+  }, [searchQuery, sortingByPrice, filterBySex]);
 
   return (
     <View className="flex-1 bg-[#F5F3FF]">

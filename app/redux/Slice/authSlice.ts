@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 
-import { forgetPasswordApi, loginApi, ProfileApi, registerApi, resetPasswordApi, verificationOTPApi } from '../service/api/user';
+import { forgetPasswordApi, loginApi, ProfileApi, registerApi, resetPasswordApi, updateProfileApi, verificationOTPApi } from '../service/api/user';
 
 import { User } from '~/constant/type';
 
@@ -46,7 +46,6 @@ export const Login = createAsyncThunk(
       const res = await loginApi({ email, password });
       const { token, user } = res;
 
-      console.log(token, user);
 
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('User', JSON.stringify(user));
@@ -111,6 +110,19 @@ export const ProfileSlice = createAsyncThunk("user/profile",
 )
 
 
+export const updateAvatar = createAsyncThunk('updateAvatar/auth',async(
+  {userId, avatar}:{userId:string, avatar: String},{rejectWithValue}
+)=>{
+  console.log('this redux',avatar)
+  try {
+    return await updateProfileApi({userId, avatar})
+  } catch (err:any) {
+    return rejectWithValue(err.response?.data?.message || ' failed to get user Profile');
+
+  }
+})
+
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -168,8 +180,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-
-
       .addCase(verifyOTP.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -185,8 +195,6 @@ const authSlice = createSlice({
         state.isOTPVerified = false;
         state.error = action.payload as string;
       })
-
-
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -212,6 +220,21 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string
       })
+      .addCase(updateAvatar.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateAvatar.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.userProfile) {
+          state.userProfile.avatar = action.payload.avatar;
+        }
+      })
+      .addCase(updateAvatar.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      
 
   },
 });

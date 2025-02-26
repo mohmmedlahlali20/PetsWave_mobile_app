@@ -1,30 +1,34 @@
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from 'expo-file-system';
 import { useState } from "react";
+import { uploadImageToBackend } from "./uploadImage";
 
 const useImagePicker = () => {
-  const [image, setImage] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes:['images'],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-    const res = await FileSystem.uploadAsync(`http://${process.env.EXPO_PUBLIC_URL}:${process.env.EXPO_PUBLIC_PORT}/upload/avatar`, result?.assets?.[0].uri ?? '', { uploadType: FileSystem.FileSystemUploadType.MULTIPART, fieldName: 'avatar' });
-    console.log(res);
-    console.log("Image Picker Result:", result.assets?.[0].uri ?? '');
+
+    console.log("Image Picker Result:", result.assets?.[0]?.uri ?? '');
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      try {
+        const imageUrl = await uploadImageToBackend(result.assets[0].uri);
+        console.log('picker hook',imageUrl)
+        setAvatar(imageUrl); 
+      } catch (error) {
+        console.error("Erreur lors de l'upload de l'image :", error);
+      }
     } else {
       console.warn("Aucune image sélectionnée.");
     }
   };
 
-
-  return { image, pickImage };
+  return { avatar, setAvatar, pickImage }; 
 };
 
 export default useImagePicker;

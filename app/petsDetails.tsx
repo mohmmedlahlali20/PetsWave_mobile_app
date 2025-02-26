@@ -53,7 +53,7 @@ export default function ProductDetail() {
     if (petId) {
       dispatch(getOnePet(petId as string)).unwrap();
     }
-  }, [dispatch, petId]);
+  }, [petId]);
 
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, index) => (
