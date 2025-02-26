@@ -42,7 +42,7 @@ export default function LoginComponent() {
         { text: 'Continue', onPress: () => router.push('/') },
       ]);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   return (
     <KeyboardAvoidingView
