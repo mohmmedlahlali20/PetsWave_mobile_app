@@ -20,7 +20,6 @@ export default function Checkout() {
   const [cardNumber, setCardNumber] = useState("")
   const [cardType, setCardType] = useState<CardType>("unknown")
   const [isLoading, setIsLoading] = useState(false)
-console.log(cartItems);
 
 
 const loadCart = async () => {
