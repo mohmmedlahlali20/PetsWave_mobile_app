@@ -59,3 +59,11 @@ export enum Status {
     Cancelled = "cancelled"
 }
 
+
+export interface Comments {
+    _id?:string
+    text:string
+    petsId:string
+    CreateBy: string
+}
+
