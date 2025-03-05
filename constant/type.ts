@@ -64,6 +64,7 @@ export interface Comments {
     _id?:string
     text:string
     petsId:string
-    CreateBy: string
+    CreatedBy: User
+    createdAt: Date
 }
 
