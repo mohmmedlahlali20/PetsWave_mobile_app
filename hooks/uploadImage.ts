@@ -3,9 +3,6 @@ import axios from 'axios';
 
 export const uploadImageToBackend = async (imageUri: string ): Promise<string | null> => {
   const response = await fetch(imageUri);
-  console.log('====================================');
-  console.log(response);
-  console.log('====================================');
   const blob = await response.blob();
   const file = new File([blob], 'product-image.jpg', { type: blob.type });
 console.log(file)
@@ -23,9 +20,7 @@ const config = {
 };
 
 try {
-  const response = await axios.post(`http://${process.env.EXPO_PUBLIC_URL}:${process.env.EXPO_PUBLIC_PORT}/upload`, formData, config);
-  console.log("fuck",response.data.imageUrl);
-  
+  const response = await axios.post(`http://${process.env.EXPO_PUBLIC_URL}:${process.env.EXPO_PUBLIC_PORT}/upload`, formData, config);  
   return response.data.imageUrl
 } catch (error) {
   console.error('Error uploading image:', error);

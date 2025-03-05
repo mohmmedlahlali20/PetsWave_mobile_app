@@ -3,6 +3,7 @@ import authSlice from '../Slice/authSlice'
 import categorySlice from '../Slice/categorySlice'
 import petSlice from '../Slice/petSlice'
 import commandSlice from '../Slice/commandSlice'
+import commentSlice from './../Slice/commentSlice';
 
 
 const store = configureStore({
@@ -10,7 +11,8 @@ const store = configureStore({
     auth: authSlice,
     category: categorySlice,
     pets: petSlice,
-    command: commandSlice
+    command: commandSlice,
+    comments: commentSlice
   },
 });
 
