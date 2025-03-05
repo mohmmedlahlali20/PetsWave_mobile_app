@@ -37,16 +37,11 @@ export default function ProductDetail() {
           headerTitleStyle: { fontWeight: "bold" },
         }}
       />
-
       <PetsImages petSelected={petSelected} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
-
       <View className="mt-2 rounded-t-3xl bg-white p-4">
         <PetsDetails petSelected={petSelected} />
-
         <CommentInput />
-
         <Reviews showAllReviews={showAllReviews} setShowAllReviews={setShowAllReviews} />
-
         <AddToCartButton petSelected={petSelected} />
       </View>
     </ScrollView>
