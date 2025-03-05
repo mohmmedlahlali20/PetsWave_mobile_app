@@ -1,113 +1,134 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  Text,
-  View,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
-  ToastAndroid,
-} from 'react-native';
-import { Feather, Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
-import { getOnePet } from './redux/Slice/petSlice';
-import { replaceIp } from '~/hooks/helpers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Pets } from '~/constant/type';
+
+import { Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid, TextInput } from "react-native"
+import { Feather, Ionicons } from "@expo/vector-icons"
+import React, { useEffect, useState } from "react"
+import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
+import { getOnePet } from "./redux/Slice/petSlice"
+import { replaceIp } from "~/hooks/helpers"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import type { Pets } from "~/constant/type"
 
 type Review = {
-  id: number;
-  user: string;
-  rating: number;
-  comment: string;
-  date: string;
-};
+  id: number
+  user: string
+  rating: number
+  comment: string
+  date: string
+}
 
 const reviews: Review[] = [
   {
     id: 1,
-    user: 'Marie L.',
+    user: "Marie L.",
     rating: 5,
-    comment: 'Mon chat adore ! La qualité est excellente.',
-    date: '2024-02-15',
+    comment: "Mon chat adore ! La qualité est excellente.",
+    date: "2024-02-15",
   },
   {
     id: 2,
-    user: 'Pierre D.',
+    user: "Pierre D.",
     rating: 4,
-    comment: 'Très bon produit, livraison rapide.',
-    date: '2024-02-10',
+    comment: "Très bon produit, livraison rapide.",
+    date: "2024-02-10",
   },
-];
+  {
+    id: 3,
+    user: "Sophie M.",
+    rating: 5,
+    comment: "Parfait pour mon chien, je recommande vivement !",
+    date: "2024-02-05",
+  },
+  {
+    id: 4,
+    user: "Jean B.",
+    rating: 3,
+    comment: "Bon produit mais livraison un peu lente.",
+    date: "2024-01-28",
+  },
+  {
+    id: 5,
+    user: "Lucie R.",
+    rating: 5,
+    comment: "Excellent rapport qualité-prix, mon animal est ravi !",
+    date: "2024-01-20",
+  },
+]
 
 export default function ProductDetail() {
-  const router = useRouter();
-  const { petId } = useLocalSearchParams();
-  const [selectedImage, setSelectedImage] = useState(0);
-  const dispatch = useAppDispatch();
-  const { petSelected, isLoading, error } = useAppSelector((state) => state.pets);
-  
+  const router = useRouter()
+  const { petId } = useLocalSearchParams()
+  const [selectedImage, setSelectedImage] = useState(0)
+  const dispatch = useAppDispatch()
+  const { petSelected, isLoading, error } = useAppSelector((state) => state.pets)
+  const {comments} = useAppSelector((state)=>state.comments)
+  const [newComment, setNewComment] = useState("")
+  const [showAllReviews, setShowAllReviews] = useState(false)
+  const reviewsToShow = showAllReviews ? reviews : reviews.slice(0, 2)
+
   useEffect(() => {
     if (petId) {
-      dispatch(getOnePet(petId as string)).unwrap();
+      dispatch(getOnePet(petId as string)).unwrap()
     }
-  }, [petId]);
+  }, [petId, dispatch])
 
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, index) => (
-      <Ionicons
-        key={index}
-        name={index < rating ? 'star' : 'star-outline'}
-        size={16}
-        color="#F59E0B"
-      />
-    ));
-  };
+      <Ionicons key={index} name={index < rating ? "star" : "star-outline"} size={16} color="#F59E0B" />
+    ))
+  }
 
   const addToCart = async () => {
     try {
       if (!petSelected) {
-        console.error('Aucun animal sélectionné.');
-        return;
+        console.error("Aucun animal sélectionné.")
+        return
       }
 
-      const userData = await AsyncStorage.getItem('User');
-      const userId = userData ? JSON.parse(userData)._id : null;
+      const userData = await AsyncStorage.getItem("User")
+      const userId = userData ? JSON.parse(userData)._id : null
 
       if (!userId) {
-        console.error('Utilisateur non trouvé.');
-        return;
+        console.error("Utilisateur non trouvé.")
+        return
       }
 
-      const cartKey = `cart_${userId}`;
-      const storedCart = await AsyncStorage.getItem(cartKey);
-      const parsedCart: Pets[] = storedCart ? JSON.parse(storedCart) : [];
+      const cartKey = `cart_${userId}`
+      const storedCart = await AsyncStorage.getItem(cartKey)
+      const parsedCart: Pets[] = storedCart ? JSON.parse(storedCart) : []
 
       if (parsedCart.some((item) => item._id === petSelected._id)) {
-        ToastAndroid.show('Cet animal est déjà dans votre panier !', ToastAndroid.SHORT);
-        return;
+        ToastAndroid.show("Cet animal est déjà dans votre panier !", ToastAndroid.SHORT)
+        return
       }
 
-      const updatedCart = [...parsedCart, petSelected];
+      const updatedCart = [...parsedCart, petSelected]
 
-      await AsyncStorage.setItem(cartKey, JSON.stringify(updatedCart));
+      await AsyncStorage.setItem(cartKey, JSON.stringify(updatedCart))
 
-      ToastAndroid.show('Animal ajouté au panier !', ToastAndroid.SHORT);
+      ToastAndroid.show("Animal ajouté au panier !", ToastAndroid.SHORT)
     } catch (error) {
-      console.error('Erreur lors de l\'ajout au panier:', error);
+      console.error("Erreur lors de l'ajout au panier:", error)
     }
-  };
+  }
+
+  const handleSubmitComment = () => {
+    if (newComment.trim() === "") {
+      ToastAndroid.show("Veuillez entrer un commentaire", ToastAndroid.SHORT)
+      return
+    }
+    ToastAndroid.show("Commentaire envoyé avec succès!", ToastAndroid.SHORT)
+    setNewComment("")
+  }
 
   return (
     <ScrollView className="flex-1 bg-purple-100">
       <Stack.Screen
         options={{
-          title: 'Détails du produit',
-          headerStyle: { backgroundColor: '#491975' },
-          headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
+          title: "Détails du produit",
+          headerStyle: { backgroundColor: "#491975" },
+          headerTintColor: "#fff",
+          headerTitleStyle: { fontWeight: "bold" },
         }}
       />
 
@@ -134,9 +155,9 @@ export default function ProductDetail() {
             <TouchableOpacity
               key={index}
               onPress={() => setSelectedImage(index)}
-              className={`mr-2 overflow-hidden rounded-lg border-2 ${
-                selectedImage === index ? 'border-purple-600' : 'border-transparent'
-              }`}>
+              className={`mr-2 overflow-hidden rounded-lg border-2 ${selectedImage === index ? "border-purple-600" : "border-transparent"
+                }`}
+            >
               <Image
                 source={{ uri: replaceIp(image, process.env.EXPO_PUBLIC_URL) }}
                 className="h-16 w-16"
@@ -171,9 +192,37 @@ export default function ProductDetail() {
           </View>
         </View>
 
-        <View className="py-4">
+        <View className="py-4 border-b border-gray-200">
+          <Text className="mb-3 text-lg font-semibold text-gray-800">Ajouter un commentaire</Text>
+          <View className="bg-purple-50 rounded-xl p-4">
+            
+            <View className="relative">
+              <TextInput
+                className="bg-white rounded-lg p-3 pr-24 text-gray-700"
+                placeholder="Écrivez votre commentaire ici..."
+                value={newComment}
+                onChangeText={setNewComment}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+              <TouchableOpacity
+                className="absolute right-2 mt-1 bg-purple-600 rounded-lg px-4  py-2"
+                onPress={handleSubmitComment}
+              >
+                <Text className="text-white font-bold">
+                  <Feather name="send" size={18} color="#fff" />
+
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+
+        <View className="border-b border-gray-200 py-4">
           <Text className="mb-3 text-lg font-semibold text-gray-800">Avis clients</Text>
-          {reviews.map((review) => (
+          {reviewsToShow.map((review) => (
             <View key={review.id} className="mb-4 rounded-xl bg-purple-50 p-4">
               <View className="mb-2 flex-row items-center justify-between">
                 <Text className="font-medium text-gray-800">{review.user}</Text>
@@ -183,17 +232,38 @@ export default function ProductDetail() {
               <Text className="text-gray-600">{review.comment}</Text>
             </View>
           ))}
+
+          <View className="flex-row justify-center mt-2 space-x-4">
+            {reviews.length > 2 &&
+              (showAllReviews ? (
+                <TouchableOpacity
+                  onPress={() => setShowAllReviews(false)}
+                  className="px-4 py-2 bg-purple-200 rounded-lg"
+                >
+                  <Text className="text-purple-700 font-medium">Voir moins</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setShowAllReviews(true)}
+                  className="px-4 py-2 bg-purple-200 rounded-lg"
+                >
+                  <Text className="text-purple-700 font-medium">Voir plus ({reviews.length - 2})</Text>
+                </TouchableOpacity>
+              ))}
+          </View>
         </View>
+
+
 
         <TouchableOpacity
           className="mt-4 flex-row items-center justify-center rounded-xl bg-purple-600 px-6 py-4"
-          onPress={addToCart}>
+          onPress={addToCart}
+        >
           <Feather name="shopping-cart" size={20} color="#fff" />
-          <Text className="ml-2 text-lg font-bold text-white">
-            Ajouter au panier • {petSelected?.Prix} MAD
-          </Text>
+          <Text className="ml-2 text-lg font-bold text-white">Ajouter au panier • {petSelected?.Prix} MAD</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
-  );
+  )
 }
+
