@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
 
 export default function LoginComponent() {
   const [email, setEmail] = useState<string>('mohmmed2010@gmail.com');
-  const [password, setPassword] = useState<string>('20018555passsword');
+  const [password, setPassword] = useState<string>('password123');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
