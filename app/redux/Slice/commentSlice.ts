@@ -76,6 +76,7 @@ const commentSlice = createSlice({
         state.isLoading = true
       })
       .addCase(AddComment.fulfilled, (state, action: PayloadAction<Comments>) => {
+        
         state.comments.push(action.payload)
         state.isLoading = false
         state.error = null
