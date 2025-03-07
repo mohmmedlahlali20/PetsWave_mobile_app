@@ -28,7 +28,6 @@ const Reviews: React.FC<{
     setActiveMenu(activeMenu === commentId ? null : commentId)
   }
 
-
   const handleDeleteComment = async (commentId: string) => {
     try {
       await dispatch(RemoveComment(commentId)).unwrap()
@@ -38,82 +37,105 @@ const Reviews: React.FC<{
     }
   }
 
-  return (
-    <View className="border-b border-gray-200 py-6">
-      <Text className="mb-4 text-xl font-bold text-gray-800">Avis clients</Text>
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View className="flex items-center justify-center py-12">
+          <ActivityIndicator size="large" color="#8B5CF6" />
+          <Text className="mt-4 text-gray-600 text-base font-medium">Chargement des commentaires...</Text>
+        </View>
+      )
+    }
 
-      {isLoading ? (
-        <ActivityIndicator size="large" color="#6B46C1" className="my-4" />
-      ) : error ? (
-        <Text className="text-red-500 my-4">{error}</Text>
-      ) : (
-        comments.slice(0, showAllReviews ? comments.length : 2).map((comment) => (
-          <View key={comment._id} className="mb-4 rounded-xl bg-purple-50 p-4 shadow-sm">
-            <View className="flex-row justify-between items-center mb-2">
-              <View className="flex-row items-center">
-                <Image
-                  source={{
-                    uri: replaceIp(
-                      comment.createdBy?.avatar || "https://via.placeholder.com/40",
-                      process.env.EXPO_PUBLIC_URL,
-                    ),
-                  }}
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-                <View>
-                  <Text className="font-semibold text-gray-800">
-                    {comment.createdBy?.firstName} {comment.createdBy?.lastName}
-                  </Text>
-                  <Text className="text-gray-500 text-xs">{new Date(comment.createdAt).toLocaleDateString()}</Text>
-                </View>
-              </View>
+    
 
-              
-                <View className="relative">
-                  <TouchableOpacity onPress={() => handleToggleMenu(comment._id!)} className="p-2">
-                    <Feather name="more-vertical" size={20} color="#4B5563" />
-                  </TouchableOpacity>
+    if (comments.length === 0) {
+      return (
+        <View className="flex items-center justify-center py-12 bg-gray-50 rounded-lg">
+          <Feather name="message-square" size={48} color="#8B5CF6" />
+          <Text className="mt-4 text-gray-600 text-lg font-medium text-center">Aucun commentaire pour le moment</Text>
+          <Text className="mt-2 text-gray-500 text-base text-center">Soyez le premier à donner votre avis !</Text>
+        </View>
+      )
+    }
 
-                  {activeMenu === comment._id && (
-                    <View className="absolute right-0 top-8 bg-white rounded-lg shadow-md z-10 w-32 border border-gray-200">
-                      <TouchableOpacity
-                        onPress={() => {
-                          onUpdateComment(comment._id!)
-                          setActiveMenu(null)
-                        }}
-                        className="py-3 px-4 border-b border-gray-100 flex-row items-center"
-                      >
-                        <Feather name="edit-2" size={16} color="#6B46C1" className="mr-2" />
-                        <Text className="text-gray-700">Modifier</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        onPress={() => {
-                          handleDeleteComment(comment._id!)
-                          setActiveMenu(null)
-                        }}
-                        className="py-3 px-4 flex-row items-center"
-                      >
-                        <Feather name="trash-2" size={16} color="#EF4444" className="mr-2" />
-                        <Text className="text-red-500">Supprimer</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-              
+    return comments.slice(0, showAllReviews ? comments.length : 2).map((comment) => (
+      <View key={comment._id} className="mb-6 rounded-2xl bg-white p-5 shadow-md">
+        <View className="flex-row justify-between items-center mb-4">
+          <View className="flex-row items-center">
+            <Image
+              source={{
+                uri: replaceIp(
+                  comment.createdBy?.avatar || "https://i.pinimg.com/736x/70/8c/08/708c08614099f90b849c6f7089f8effb.jpg",
+                  process.env.EXPO_PUBLIC_URL,
+                ),
+              }}
+              className="w-12 h-12 rounded-full mr-4 border-2 border-purple-200"
+            />
+            <View>
+              <Text className="font-bold text-gray-800 text-lg">
+                {comment.createdBy?.firstName} {comment.createdBy?.lastName}
+              </Text>
+              <Text className="text-gray-500 text-sm">
+                {new Date(comment.createdAt).toLocaleDateString("fr-FR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </Text>
             </View>
-
-            <Text className="text-gray-600 mb-2">{comment.text}</Text>
           </View>
-        ))
-      )}
+
+          <View className="relative">
+            <TouchableOpacity onPress={() => handleToggleMenu(comment._id!)} className="p-2 rounded-full bg-purple-100">
+              <Feather name="more-vertical" size={20} color="#8B5CF6" />
+            </TouchableOpacity>
+
+            {activeMenu === comment._id && (
+              <View className="absolute right-0 top-10 bg-white rounded-xl shadow-lg z-10 w-40 border border-gray-100">
+                <TouchableOpacity
+                  onPress={() => {
+                    onUpdateComment(comment._id!)
+                    setActiveMenu(null)
+                  }}
+                  className="py-3 px-4 border-b border-gray-100 flex-row items-center"
+                >
+                  <Feather name="edit-2" size={16} color="#8B5CF6" className="mr-3" />
+                  <Text className="text-gray-700 font-medium">Modifier</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    handleDeleteComment(comment._id!)
+                    setActiveMenu(null)
+                  }}
+                  className="py-3 px-4 flex-row items-center"
+                >
+                  <Feather name="trash-2" size={16} color="#EF4444" className="mr-3" />
+                  <Text className="text-red-500 font-medium">Supprimer</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+
+        <Text className="text-gray-600 text-base leading-relaxed">{comment.text}</Text>
+      </View>
+    ))
+  }
+
+  return (
+    <View className="border-b border-gray-200 py-8 px-4">
+      <Text className="mb-6 text-2xl font-bold text-gray-800">Avis clients</Text>
+
+      {renderContent()}
 
       {comments.length > 2 && (
         <TouchableOpacity
           onPress={() => setShowAllReviews(!showAllReviews)}
-          className="mt-4 self-start px-6 py-3 bg-purple-600 rounded-full"
+          className="mt-6 self-start px-6 py-3 bg-purple-600 rounded-full shadow-md active:bg-purple-700 transition-colors"
         >
-          <Text className="text-white font-semibold">
+          <Text className="text-white font-semibold text-base">
             {showAllReviews ? "Voir moins" : `Voir plus (${comments.length - 2})`}
           </Text>
         </TouchableOpacity>
