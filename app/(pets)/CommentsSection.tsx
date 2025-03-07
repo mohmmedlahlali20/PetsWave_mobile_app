@@ -15,7 +15,6 @@ const Reviews: React.FC<{
   const dispatch = useAppDispatch()
   const { petSelected } = useAppSelector((state) => state.pets)
   const { comments, isLoading, error } = useAppSelector((state) => state.comments)
-  const { userId } = useAppSelector((state) => state.auth)
   const petsId = petSelected?._id
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
