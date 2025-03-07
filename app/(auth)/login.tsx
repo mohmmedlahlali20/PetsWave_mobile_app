@@ -95,27 +95,23 @@ export default function LoginComponent() {
             showPasswordState={showPassword}
           />
 
-          <TouchableOpacity className="mb-6" onPress={()=> router.push('/(auth)/ForgetPassword')}>
+          <TouchableOpacity className="mb-6" onPress={() => router.push('/(auth)/ForgetPassword')}>
             <Text className="text-right text-sm text-purple-600">Forgot Password?</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleLogin}
             disabled={isLoading}
-            className="w-full items-center rounded-xl bg-[#491975] py-4 shadow-sm"
-            style={{
-              shadowColor: '#9333EA',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}>
+            className="w-full items-center rounded-xl bg-[#491975] py-4"
+            
+          >
             {isLoading ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text className="text-lg font-bold text-white">Sign In</Text>
             )}
           </TouchableOpacity>
+
 
           <View className="flex-row justify-center ">
             <TouchableOpacity
