@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Comments } from "~/constant/type"
-import { addComments, getCommentsByPetsId } from "../service/api/comment"
+import { addComments, getCommentsByPetsId, removeCommentsApi } from "../service/api/comment"
 
 
 
@@ -30,7 +30,7 @@ export const AddComment = createAsyncThunk(
   "comments/add",
   async ({ petsId, createdBy, text }: { petsId: string, createdBy: string, text: string }, { rejectWithValue }) => {
     try {
-      
+
       const newComment = await addComments({ petsId, createdBy, text })
       return newComment
     } catch (err: any) {
@@ -38,6 +38,20 @@ export const AddComment = createAsyncThunk(
     }
   }
 )
+
+
+export const RemoveComment = createAsyncThunk(
+  "comments/remove",
+  async (commentId: string, { rejectWithValue }) => {
+    try {
+      await removeCommentsApi(commentId)
+      return commentId
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Échec de la suppression du commentaire")
+    }
+  }
+)
+
 
 const commentSlice = createSlice({
   name: "comments",
@@ -67,6 +81,18 @@ const commentSlice = createSlice({
         state.error = null
       })
       .addCase(AddComment.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload as string
+      })
+      .addCase(RemoveComment.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(RemoveComment.fulfilled, (state, action: PayloadAction<string>) => {
+        state.comments = state.comments.filter(comment => comment._id !== action.payload)
+        state.isLoading = false
+        state.error = null
+      })
+      .addCase(RemoveComment.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload as string
       })
