@@ -14,8 +14,6 @@ export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const dispatch = useAppDispatch();
   const { isLoading, isOTPVerified, error } = useAppSelector((state) => state.auth);
-
-  const [verificationCode, setVerificationCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -59,7 +57,6 @@ export default function ResetPassword() {
       case 'code':
         return (
           <View className="space-y-4">
-            {/* Email Input */}
             <View>
               <Text className="text-gray-700 mb-2 font-medium">Adresse email</Text>
               <View className="flex-row items-center border border-gray-200 rounded-xl px-4 py-3 bg-white">
@@ -75,7 +72,6 @@ export default function ResetPassword() {
               </View>
             </View>
 
-            {/* OTP Input */}
             <View>
               <Text className="text-gray-700 mb-2 font-medium">Code de vérification</Text>
               <View className="flex-row items-center border border-gray-200 rounded-xl px-4 py-3 bg-white">
@@ -94,7 +90,6 @@ export default function ResetPassword() {
               </Text>
             </View>
 
-            {/* Verify OTP Button */}
             <TouchableOpacity
               className={`bg-[#491975] py-4 rounded-xl flex-row justify-center items-center ${
                 isLoading ? 'opacity-70' : ''
@@ -109,7 +104,6 @@ export default function ResetPassword() {
               )}
             </TouchableOpacity>
 
-            {/* Resend Code Link */}
             <TouchableOpacity className="py-2" onPress={() => router.push('/')}>
               <Text className="text-[#491975] text-center">Renvoyer le code</Text>
             </TouchableOpacity>
