@@ -12,20 +12,13 @@ import { logout } from './redux/Slice/authSlice';
 export default function Home() {
   const dispatch = useAppDispatch();
   const { categories } = useAppSelector((state) => state.category);
+  
   const { pets = [], isLoading, error } = useAppSelector((state) => state.pets);
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setTimeout(() => {
-        router.push('/(auth)/login');
-      }, 100);
-    }
-  }, [isAuthenticated, router]);
 
   const handleLogout = () => {
     dispatch(logout());
