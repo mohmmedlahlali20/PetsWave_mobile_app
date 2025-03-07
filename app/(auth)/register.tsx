@@ -134,13 +134,7 @@ export default function Register() {
             onPress={handleRegister}
             disabled={isLoading}
             className="mt-4 w-full items-center rounded-xl bg-[#491975] py-4 shadow-sm"
-            style={{
-              shadowColor: '#491975',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}>
+            >
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
