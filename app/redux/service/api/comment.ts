@@ -6,22 +6,35 @@ const getCommentsByPetsId = async (petsId: string) => {
     return res.data || [];
 };
 
-const addComments = async ({ petsId, createdBy, text }: { petsId: string, createdBy: string, text: string }) : Promise<Comments> => {
-    try {
-        const res = await path.post(`comments/${createdBy}`, {
-            text,
-            createdBy,
-            petsId,
-        });
-       
-        
-        return res.data;
-    } catch (error) {
-        throw new Error("Failed to add comment.");
-    }
+const addComments = async (
+    {
+        petsId,
+        createdBy,
+        text
+    }:
+        {
+            petsId: string,
+            createdBy: string,
+            text: string
+
+        }): Promise<Comments> => {
+    const res = await path.post(`comments/${createdBy}`, {
+        text,
+        createdBy,
+        petsId,
+    });
+    return res.data;
+
 };
+
+
+const removeCommentsApi = async (commentId: string) => {
+    const res = await path.delete(`comments/${commentId}`)
+    return res.data
+}
 
 export {
     getCommentsByPetsId,
     addComments,
+    removeCommentsApi
 };
