@@ -1,59 +1,15 @@
-import {
-  FlatList,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  ToastAndroid,
-} from 'react-native';
+import { FlatList, Text, View, ScrollView, TouchableOpacity, Image, ToastAndroid } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { replaceIp } from '~/hooks/helpers';
 import { Pets } from '~/constant/type';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
-import { command } from '~/app/redux/Slice/commandSlice';
-import { getPets } from '../redux/Slice/petSlice';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState<Pets[]>([]);
-  const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state) => state.command);
-
-  const CommandeCart = async () => {
-    if (cartItems.length === 0) {
-      ToastAndroid.show('Votre panier est vide.', ToastAndroid.SHORT);
-      return;
-    }
-
-    try {
-      const userData = await AsyncStorage.getItem('User');
-      const userId = userData ? JSON.parse(userData)._id : null;
-
-      if (!userId) {
-        ToastAndroid.show("Erreur : utilisateur non trouvé.", ToastAndroid.SHORT);
-        return;
-      }
-
-      const petsId = cartItems.map((item) => item._id);
-      const totalamount = cartItems.reduce((sum, item) => sum + (item.Prix || 0), 0);
-
-      await dispatch(command({ petsId, userId, totalamount })).unwrap();
-      await dispatch(getPets()).unwrap();
-    
-      const cartKey = `cart_${userId}`;
-      await AsyncStorage.removeItem(cartKey);
-      setCartItems([]);
-
-      ToastAndroid.show('Commande enregistrée avec succès.', ToastAndroid.SHORT);
-    } catch (error) {
-      console.error('Erreur lors de la commande :', error);
-      ToastAndroid.show("Échec de l'enregistrement de la commande.", ToastAndroid.SHORT);
-    }
-  };
-
+  const router = useRouter();
 
   const loadCart = async () => {
     try {
@@ -134,7 +90,7 @@ export default function Cart() {
               <View className="flex-row items-center border-b border-gray-100 py-4 last:border-0">
                 <Image
                   source={{
-                    uri: item.images?.[0] ? replaceIp(item.images[0], '192.168.8.134') : undefined,
+                    uri: replaceIp(item.images[0], process.env.EXPO_PUBLIC_URL),
                   }}
                   className="h-20 w-20 rounded-lg"
                   resizeMode="cover"
@@ -143,7 +99,7 @@ export default function Cart() {
                   <View className="flex-row items-start justify-between">
                     <View className="flex-1">
                       <Text className="font-medium text-gray-800">{item.name}</Text>
-                      <Text className="text-sm text-gray-500">{item.Prix} MAD</Text>
+                      <Text className="text-sm text-gray-500">{item.Prix || 0} MAD</Text>
                     </View>
                     <TouchableOpacity onPress={() => removeItem(item._id)} className="p-2">
                       <Feather name="trash-2" size={20} color="#EF4444" />
@@ -166,7 +122,10 @@ export default function Cart() {
 
         <TouchableOpacity
           className="flex-row items-center justify-center rounded-xl bg-purple-600 px-6 py-4"
-          onPress={CommandeCart}>
+          onPress={() => {
+            router.push('/cart/checkout');
+          }}
+        >
           <Feather name="credit-card" size={20} color="#fff" />
           <Text className="ml-2 text-lg font-bold text-white">
             Procéder au paiement ({totalPrice} MAD)
