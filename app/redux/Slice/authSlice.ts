@@ -111,7 +111,7 @@ export const ProfileSlice = createAsyncThunk("user/profile",
 
 
 export const updateAvatar = createAsyncThunk('updateAvatar/auth',async(
-  {userId, avatar}:{userId:string, avatar: String},{rejectWithValue}
+  {userId, avatar}:{userId:string, avatar: File},{rejectWithValue}
 )=>{
   console.log('this redux',avatar)
   try {
