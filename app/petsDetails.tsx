@@ -10,6 +10,7 @@ import Reviews from "./(pets)/CommentsSection"
 import AddToCartButton from "./(pets)/AddToCartButton"
 import CommentInput from "./(pets)/CommentInput"
 import PetsDetails from "./(pets)/PetsInfo"
+import { addComments } from '~/app/redux/service/api/comment';
 
 
 
@@ -20,6 +21,7 @@ export default function ProductDetail() {
   const { petSelected, isLoading, error } = useAppSelector((state) => state.pets)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showAllReviews, setShowAllReviews] = useState(false)
+
 
   useEffect(() => {
     if (petId) {

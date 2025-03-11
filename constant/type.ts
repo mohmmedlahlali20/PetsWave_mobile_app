@@ -1,4 +1,5 @@
 export interface User {
+    _id?:any
     firstName: string;
     lastName: string;
     avatar?: string | null;
@@ -64,7 +65,7 @@ export interface Comments {
     _id?:string
     text:string
     petsId:string
-    CreatedBy: User
+    createdBy: User
     createdAt: Date
 }
 

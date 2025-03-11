@@ -2,18 +2,42 @@ import { View, TextInput, TouchableOpacity, Text, ToastAndroid } from "react-nat
 import { Feather } from "@expo/vector-icons"
 import { useState } from "react"
 import React from "react"
+import { useAppDispatch, useAppSelector } from "~/hooks/useAppDispatch"
+import { AddComment } from "../redux/Slice/commentSlice"
 
 export default function CommentInput() {
-  const [newComment, setNewComment] = useState("")
+  const [text, setText] = useState("")
+  const { user } = useAppSelector((state) => state.auth)
+  const {petSelected} = useAppSelector((state)=> state.pets)
+  
+  
 
-  const handleSubmitComment = () => {
-    if (!newComment.trim()) {
-      ToastAndroid.show("Veuillez entrer un commentaire", ToastAndroid.SHORT)
-      return
+  const dispatch = useAppDispatch()
+
+
+  const handleSubmitComment = async () => {
+    const petsId = petSelected?._id;
+    const createdBy = user?._id;
+  
+    if (!petsId || !createdBy) {
+      ToastAndroid.show("Erreur: utilisateur ou animal introuvable", ToastAndroid.SHORT);
+      return;
     }
-    ToastAndroid.show("Commentaire envoyé avec succès!", ToastAndroid.SHORT)
-    setNewComment("")
-  }
+  
+    if (!text.trim()) {
+      ToastAndroid.show("Veuillez entrer un commentaire", ToastAndroid.SHORT);
+      return;
+    }
+  
+    try {
+      await dispatch(AddComment({ petsId, createdBy, text })).unwrap();
+      ToastAndroid.show("Commentaire envoyé avec succès!", ToastAndroid.SHORT);
+      setText("");
+    } catch (err: any) {
+      ToastAndroid.show("Erreur lors de l'ajout du commentaire", ToastAndroid.SHORT);
+    }
+  };
+  
 
   return (
     <View className="py-4 border-b border-gray-200">
@@ -23,10 +47,10 @@ export default function CommentInput() {
         <TextInput
           className="flex-1 pr-3 text-gray-800"
           placeholder="Écrivez ici..."
-          value={newComment}
-          onChangeText={setNewComment}
+          value={text}
+          onChangeText={setText}
         />
-        <TouchableOpacity onPress={handleSubmitComment} className="p-2 rounded-full bg-purple-600">
+        <TouchableOpacity onPress={handleSubmitComment} className="p-4 rounded-full bg-purple-600">
           <Feather name="send" size={20} color="white" />
         </TouchableOpacity>
       </View>
