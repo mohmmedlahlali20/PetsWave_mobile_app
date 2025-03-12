@@ -24,7 +24,7 @@ try {
   return response.data.imageUrl
 } catch (error) {
   console.error('Error uploading image:', error);
-  return 'https://i.pinimg.com/736x/70/8c/08/708c08614099f90b849c6f7089f8effb.jpg'
+  return 'https://i.pinimg.com/474x/16/b2/e2/16b2e2579118bf6fba3b56523583117f.jpg'
 
 }
 
