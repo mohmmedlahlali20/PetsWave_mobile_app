@@ -12,7 +12,7 @@ import { logout } from './redux/Slice/authSlice';
 export default function Home() {
   const dispatch = useAppDispatch();
   const { categories } = useAppSelector((state) => state.category);
-  
+
   const { pets = [], isLoading, error } = useAppSelector((state) => state.pets);
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -45,12 +45,7 @@ export default function Home() {
     <ScrollView className="flex-1 bg-purple-50" scrollEventThrottle={16}>
       <Stack.Screen
         options={{
-          title: 'PetsWave Shop',
-          headerStyle: { backgroundColor: '#491975' },
-          headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
-          headerBackVisible: false,
-          gestureEnabled: false,
+          headerShown: false
         }}
       />
 
@@ -168,7 +163,15 @@ export default function Home() {
                     </View>
                     <View className="rounded-full bg-purple-100 px-3 py-1">
                       <Text className="font-bold text-purple-600">{pet.Prix} MAD</Text>
+
                     </View>
+                    <Text className="text-sm text-gray-500 mb-2">
+                      {new Date(pet.createdAt ?? '').toLocaleDateString("fr-FR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Text>
                   </View>
 
                   <TouchableOpacity className="flex-row items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-400 py-2">
