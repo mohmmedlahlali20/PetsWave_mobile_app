@@ -92,6 +92,14 @@ export default function Profile() {
     </TouchableOpacity>
   )
 
+
+
+
+  const totalAmount = command.reduce((sum, com) => sum + (com.totalAmount || 0), 0);
+
+  console.log(totalAmount);
+  
+
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <Stack.Screen
@@ -136,8 +144,8 @@ export default function Profile() {
               {index === 0
                 ? command.length
                 : index === 1
-                  ? command.filter((c) => c.status === Status.InProgress).length
-                  : "350"}
+                  ? command.filter((c) => c.status === Status.Pending).length
+                  : totalAmount}
             </Text>
           </Animated.View>
         ))}
