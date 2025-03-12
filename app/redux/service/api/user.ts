@@ -35,7 +35,7 @@ const ProfileApi = async (userId: string) =>{
 }
 
 
-const updateProfileApi = async ({ userId, avatar }: { userId: string; avatar: File }) => {
+const updateProfileApi = async ({ userId, avatar }: { userId: string; avatar: string }) => {
     try {
         const res = await path.patch(`auth/update-profile/${userId}`, { avatar });
         return res.data;
