@@ -39,7 +39,8 @@ export interface Pets {
     category: Category,
     images: string[],
     Prix: number,
-    isAvailable: boolean
+    isAvailable: boolean,
+    createdAt?: Date
 }
 
 
