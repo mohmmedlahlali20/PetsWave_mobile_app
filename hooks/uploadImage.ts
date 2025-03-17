@@ -21,6 +21,8 @@ const config = {
 
 try {
   const response = await axios.post(`http://${process.env.EXPO_PUBLIC_URL}:${process.env.EXPO_PUBLIC_PORT}/upload`, formData, config);  
+  console.log(response.data.imageUrl , 'Log response.data.imageUrl');
+  
   return response.data.imageUrl
 } catch (error) {
   console.error('Error uploading image:', error);
