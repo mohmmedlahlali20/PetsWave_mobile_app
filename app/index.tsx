@@ -1,13 +1,22 @@
-import { Stack, useRouter } from 'expo-router';
-import { Text, View, Image, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
-import React from 'react';
-import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
+import { Stack, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+  ActivityIndicator,
+} from 'react-native';
+
+import { logout } from './redux/Slice/authSlice';
 import { getCategory } from './redux/Slice/categorySlice';
 import { getPets } from './redux/Slice/petSlice';
+
 import { replaceIp } from '~/hooks/helpers';
-import { logout } from './redux/Slice/authSlice';
+import { useAppDispatch, useAppSelector } from '~/hooks/useAppDispatch';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -17,8 +26,7 @@ export default function Home() {
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -35,17 +43,86 @@ export default function Home() {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const filteredPets = selectedCategory
     ? pets.filter((pet) => pet.category._id === selectedCategory)
     : pets;
 
+  const renderCategoryItem = (category: any) => (
+    <TouchableOpacity
+      key={category._id}
+      className="mr-6 items-center"
+      onPress={() => setSelectedCategory(category._id)}
+      style={{
+        transform: [
+          {
+            scale: scrollY.interpolate({
+              inputRange: [0, 100],
+              outputRange: [1, 0.95],
+              extrapolate: 'clamp',
+            }),
+          },
+        ],
+      }}>
+      <View className="mb-2 rounded-2xl border border-purple-100 bg-white p-4 shadow-lg">
+        <Ionicons name="paw" size={32} color="#491975" />
+      </View>
+      <Text className="text-sm font-medium text-gray-700">{category.name}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderPetItem = (pet: any) => (
+    <TouchableOpacity
+      key={pet._id}
+      className="overflow-hidden rounded-2xl bg-white shadow-lg"
+      activeOpacity={0.8}
+      onPress={() => router.push(`/petsDetails?petId=${pet._id}`)}>
+      {pet.images && pet.images.length > 0 ? (
+        <Image
+          source={{ uri: replaceIp(pet.images[0], process.env.EXPO_PUBLIC_URL) }}
+          className="h-56 w-full"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="flex h-56 w-full items-center justify-center bg-gray-200">
+          <Text className="text-gray-500">Image non disponible</Text>
+        </View>
+      )}
+
+      <View className="space-y-2 p-4">
+        <View className="flex-row items-start justify-between">
+          <View>
+            <Text className="text-lg font-semibold text-gray-800">{pet.name}</Text>
+            <Text className="text-sm text-gray-500">
+              {pet.description.split(' ').slice(0, 4).join(' ')}...
+            </Text>
+          </View>
+          <View className="rounded-full bg-purple-100 px-3 py-1">
+            <Text className="font-bold text-purple-600">{pet.Prix} MAD</Text>
+          </View>
+        </View>
+        <Text className="m-2 mb-2 text-sm text-gray-500">
+          {new Date(pet.createdAt ?? '').toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </Text>
+
+        <TouchableOpacity className="flex-row items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-400 py-2">
+          <Feather name="shopping-cart" size={18} color="#fff" className="mr-2" />
+          <Text className="font-semibold text-white">Ajouter au panier</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <ScrollView className="flex-1 bg-purple-50" scrollEventThrottle={16}>
       <Stack.Screen
         options={{
-          headerShown: false
+          headerShown: false,
         }}
       />
 
@@ -57,6 +134,7 @@ export default function Home() {
           </Text>
         </View>
       </View>
+
       <View className="-mt-6 px-4">
         <View className="mb-6 rounded-xl bg-white p-4 shadow-lg">
           <View className="flex-row items-center justify-around">
@@ -82,6 +160,7 @@ export default function Home() {
               </View>
               <Text className="text-sm font-medium text-gray-700">Déconnexion</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               className="items-center"
               onPress={() => router.push('/(pets)/search')}>
@@ -96,28 +175,7 @@ export default function Home() {
         <Text className="mb-4 text-xl font-semibold text-gray-800">Catégories</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-8">
           {categories?.length > 0 ? (
-            categories.map((category) => (
-              <TouchableOpacity
-                key={category._id}
-                className="mr-6 items-center"
-                onPress={() => setSelectedCategory(category._id)}
-                style={{
-                  transform: [
-                    {
-                      scale: scrollY.interpolate({
-                        inputRange: [0, 100],
-                        outputRange: [1, 0.95],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                  ],
-                }}>
-                <View className="mb-2 rounded-2xl border border-purple-100 bg-white p-4 shadow-lg">
-                  <Ionicons name="paw" size={32} color="#491975" />
-                </View>
-                <Text className="text-sm font-medium text-gray-700">{category.name}</Text>
-              </TouchableOpacity>
-            ))
+            categories.map(renderCategoryItem)
           ) : (
             <Text className="text-gray-500">Aucune catégorie disponible</Text>
           )}
@@ -125,62 +183,27 @@ export default function Home() {
 
         <View className="mb-6 flex-row items-center justify-between">
           <Text className="text-xl font-semibold text-gray-800">Produits en vedette</Text>
-          <TouchableOpacity className="rounded-full bg-purple-100 px-4 py-2" onPress={() => setSelectedCategory(null)}>
+          <TouchableOpacity
+            className="rounded-full bg-purple-100 px-4 py-2"
+            onPress={() => setSelectedCategory(null)}>
             <Text className="font-medium text-purple-600">Voir tous les animaux</Text>
           </TouchableOpacity>
         </View>
 
-        {filteredPets.length > 0 ? (
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#491975" />
+          </View>
+        ) : error ? (
+          <View className="flex-1 items-center justify-center">
+            <Text className="text-lg text-red-500">Erreur lors du chargement des données</Text>
+          </View>
+        ) : filteredPets.length > 0 ? (
           <ScrollView
             horizontal={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ gap: 16, padding: 16 }}>
-            {filteredPets.map((pet) => (
-              <TouchableOpacity
-                key={pet._id}
-                className="overflow-hidden rounded-2xl bg-white shadow-lg"
-                activeOpacity={0.8}
-                onPress={() => router.push(`/petsDetails?petId=${pet._id}`)}>
-                {pet.images && pet.images.length > 0 ? (
-                  <Image
-                    source={{ uri: replaceIp(pet.images[0], process.env.EXPO_PUBLIC_URL) }}
-                    className="h-56 w-full"
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <View className="flex h-56 w-full items-center justify-center bg-gray-200">
-                    <Text className="text-gray-500">Image non disponible</Text>
-                  </View>
-                )}
-
-                <View className="space-y-2 p-4">
-                  <View className="flex-row items-start justify-between">
-                    <View>
-                      <Text className="text-lg font-semibold text-gray-800">{pet.name}</Text>
-                      <Text className="text-sm text-gray-500">
-                        {pet.description.split(' ').slice(0, 4).join(' ')}...
-                      </Text>
-                    </View>
-                    <View className="rounded-full bg-purple-100 px-3 py-1">
-                      <Text className="font-bold text-purple-600">{pet.Prix} MAD</Text>
-
-                    </View>
-                    <Text className="text-sm text-gray-500 mb-2">
-                      {new Date(pet.createdAt ?? '').toLocaleDateString("fr-FR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </Text>
-                  </View>
-
-                  <TouchableOpacity className="flex-row items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-400 py-2">
-                    <Feather name="shopping-cart" size={18} color="#fff" className="mr-2" />
-                    <Text className="font-semibold text-white">Ajouter au panier</Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            ))}
+            {filteredPets.map(renderPetItem)}
           </ScrollView>
         ) : (
           <View className="flex-1 items-center justify-center">
