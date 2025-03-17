@@ -46,8 +46,6 @@ const Reviews: React.FC<{
         <ActivityIndicator size="large" color="#6B46C1" className="my-4" />
       ) : error ? (
         <Text className="my-4 text-red-500">{error}</Text>
-      ) : comments.length === 0 ? (
-        <Text className="my-4 text-gray-500">Aucun commentaire pour ce produit.</Text>
       ) : (
         comments.slice(0, showAllReviews ? comments.length : 2).map((comment) => (
           <View key={comment._id} className="mb-4 rounded-xl bg-purple-50 p-4 shadow-sm">
